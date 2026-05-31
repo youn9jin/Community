@@ -4,6 +4,7 @@ import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.user.dto.SignUpRequestDTO;
 import com.example.community.user.dto.SignUpResponseDTO;
+import com.example.community.user.dto.UserInfoResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,22 @@ public class UserService {
         response.setStatus(user.getStatus());
 
         return response;
-        
+    }
 
+    //회원조회 로직
+    public UserInfoResponseDTO getUserInfo(int userId){
+
+        //Repository에서 user 조회
+        User user = userRepository.findByID(userId);
+
+        //user DTO로 변환
+        UserInfoResponseDTO dto = new UserInfoResponseDTO();
+        dto.setUserId(user.getUserId());
+        dto.setEmail(user.getEmail());
+        dto.setNickname(user.getNickname());
+        dto.setProfileImageUrl(user.getProfileImgUrl());
+
+        return dto;
     }
 
 }

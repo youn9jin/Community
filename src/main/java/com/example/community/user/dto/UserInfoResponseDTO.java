@@ -6,10 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignUpResponseDTO {
+public class UserInfoResponseDTO {
     private int userId;
     private String email;
     private String nickname;
     private String profileImageUrl;
-    private UserStatus status;
 }

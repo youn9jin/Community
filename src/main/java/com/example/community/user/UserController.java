@@ -1,7 +1,9 @@
 package com.example.community.user;
 
+import com.example.community.global.ResponseWrapper;
 import com.example.community.user.dto.SignUpRequestDTO;
 import com.example.community.user.dto.SignUpResponseDTO;
+import com.example.community.user.dto.UserInfoResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,16 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<SignUpResponseDTO> signUp(
+    public ResponseEntity<ResponseWrapper<SignUpResponseDTO>> signUp(
             @Valid @RequestBody SignUpRequestDTO request) {
 
         SignUpResponseDTO response = userService.signUp(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseWrapper.success("registeration success", response));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable int userId){
+        UserInfoResponseDTO response = userService.getUserInfo(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }
 }

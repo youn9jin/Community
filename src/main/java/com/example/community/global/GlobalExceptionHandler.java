@@ -2,6 +2,7 @@ package com.example.community.global;
 
 import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
+import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseWrapper<Void>> handleValidation(
             MethodArgumentNotValidException e) {
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResponseWrapper.error(400, "Invalid request", "BAD_REQUEST"));
+    }
+
+    //404 - User 조회 실패
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handleUserNotFound(UserNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
     }
 
     // 409 - 이메일 중복
@@ -28,8 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseWrapper<Void>> handleDuplicateEmail(
             DuplicateEmailException e) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ResponseWrapper.error(409, e.getMessage(), "CONFLICT"));
     }
 
@@ -38,8 +45,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseWrapper<Void>> handleDuplicateNickname(
             DuplicateNicknameException e) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ResponseWrapper.error(409, e.getMessage(), "CONFLICT"));
     }
 
@@ -48,8 +54,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseWrapper<Void>> handleException(Exception e) {
 
         log.error("Unexpected error: ", e); // 로그는 500만 남김
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseWrapper.error(500, "Internal server error",
                         "INTERNAL_SERVER_ERROR"));
     }
