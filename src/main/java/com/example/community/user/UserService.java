@@ -1,5 +1,7 @@
 package com.example.community.user;
 
+import com.example.community.global.exception.DuplicateEmailException;
+import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.user.dto.SignUpRequestDTO;
 import com.example.community.user.dto.SignUpResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +19,13 @@ public class UserService {
 
         //1. 이메일 중복 체크
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Already registered email");
+            throw new DuplicateEmailException();
         }
 
         //2. 닉네임 중복 체크
         if (userRepository.existsByNickname(request.getNickname())) {
-            throw new RuntimeException("Already registered nickname");
+            throw new DuplicateNicknameException();
+
         }
 
         //3. DTO -> User 변환

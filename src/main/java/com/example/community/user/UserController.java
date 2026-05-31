@@ -6,10 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +17,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<SignUpResponseDTO> signUp(
-            @Valid @ModelAttribute SignUpRequestDTO request) {
+            @Valid @RequestBody SignUpRequestDTO request) {
 
         SignUpResponseDTO response = userService.signUp(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

@@ -19,7 +19,7 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
 
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("users")
+                .withTableName("user")
                 .usingGeneratedKeyColumns("id");
     }
 
@@ -37,14 +37,14 @@ public class UserRepository {
 
     //이메일 중복 체크 메서드
     public boolean existsByEmail(String email) {
-        String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        String sql = "SELECT COUNT(*) FROM user WHERE email = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
         return count != null && count > 0;
     }
 
     //닉네임 중복 체크 메서드
     public boolean existsByNickname(String nickname) {
-        String sql = "SELECT COUNT(*) FROM users WHERE nickname = ?";
+        String sql = "SELECT COUNT(*) FROM user WHERE nickname = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, nickname);
         return count != null && count > 0;
     }
