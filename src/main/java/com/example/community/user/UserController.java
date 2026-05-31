@@ -30,4 +30,19 @@ public class UserController {
         UserInfoResponseDTO response = userService.getUserInfo(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }
+
+    @GetMapping(params = "email")
+    public ResponseEntity<ResponseWrapper<?>> checkEmailDuplicate(@RequestParam String email) {
+        userService.checkEmailDuplicate(email);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseWrapper.success("does not have same email", null));
+    }
+
+    @GetMapping(params = "nickname")
+    public ResponseEntity<ResponseWrapper<?>> checkNicknameDuplicate(@RequestParam String nickname) {
+        userService.checkNickNameDuplicate(nickname);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseWrapper.success("does not have same nickname", null));
+    }
+
 }

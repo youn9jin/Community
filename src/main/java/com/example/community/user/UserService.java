@@ -67,4 +67,16 @@ public class UserService {
         return dto;
     }
 
+    public void checkEmailDuplicate(String email){
+        if(userRepository.existsByEmail(email)){
+            throw new DuplicateEmailException();
+        }
+    }
+
+    public void checkNickNameDuplicate(String nickname){
+        if(userRepository.existsByNickname(nickname)){
+            throw new DuplicateNicknameException();
+        }
+    }
+
 }
