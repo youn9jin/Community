@@ -30,7 +30,7 @@ public class UserRepository {
     }
 
     //회원 저장 메서드
-    public int save(User user) {
+    public long save(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email",      user.getEmail())
                 .addValue("password",   user.getPassword())
@@ -38,7 +38,7 @@ public class UserRepository {
                 .addValue("status",     user.getStatus().name())
                 .addValue("created_at", Timestamp.from(Instant.now()));
 
-        return jdbcInsert.executeAndReturnKey(params).intValue();
+        return jdbcInsert.executeAndReturnKey(params).longValue();
     }
 
     //이메일 중복 체크 메서드
@@ -56,14 +56,14 @@ public class UserRepository {
     }
 
     //회원 정보 불러오기 메서드
-    public User findByID(int UserId){
+    public User findByID(long userId){
         String sql = "SELECT user_id, email, nickname, profile_img_url FROM user WHERE user_id = ?";
 
         RowMapper<User> rowMapper = new RowMapper<User>() {
             @Override
             public User mapRow(ResultSet rs, int rowNum) throws SQLException {
                 User user = new User();
-                user.setUserId(rs.getInt("user_id"));
+                user.setUserId(rs.getLong("user_id"));
                 user.setEmail(rs.getString("email"));
                 user.setNickname(rs.getString("nickname"));
                 user.setProfileImgUrl(rs.getString("profile_img_url"));
@@ -72,9 +72,9 @@ public class UserRepository {
         };
 
         try {
-            return jdbcTemplate.queryForObject(sql, rowMapper, UserId);
+            return jdbcTemplate.queryForObject(sql, rowMapper, userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException(UserId);
+            throw new UserNotFoundException(userId);
         }
     }
 }

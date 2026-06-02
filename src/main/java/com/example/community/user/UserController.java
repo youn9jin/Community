@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable int userId){
+    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable long userId){
         UserInfoResponseDTO response = userService.getUserInfo(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }

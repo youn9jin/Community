@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Comment {
     private int commentId;
     private String content;
-    private int userId;
+    private long userId;
     private int postId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -25,10 +25,10 @@ public class Comment {
         this.content = content;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 

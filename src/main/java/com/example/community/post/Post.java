@@ -8,7 +8,7 @@ public class Post {
     private String content;
     private int viewCount;
     private String contentImgUrl;
-    private int userId;
+    private long userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
@@ -48,10 +48,10 @@ public class Post {
         this.contentImgUrl = contentImgUrl;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 

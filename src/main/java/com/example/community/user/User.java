@@ -3,7 +3,7 @@ package com.example.community.user;
 import java.time.LocalDateTime;
 
 public class User {
-    private int userId;
+    private long userId;
     private String email;
     private String nickname;
     private String password;
@@ -12,11 +12,11 @@ public class User {
     private LocalDateTime deletedAt;
     private String profileImgUrl;
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 

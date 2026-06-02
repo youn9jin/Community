@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Likes {
     private int postId;
-    private int userId;
+    private long userId;
     private LocalDateTime createdAt;
 
     public int getPostId() {
@@ -14,10 +14,10 @@ public class Likes {
         this.postId = postId;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 

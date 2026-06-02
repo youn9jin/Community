@@ -38,7 +38,7 @@ public class UserService {
         user.setStatus(UserStatus.ACTIVE);
 
         // 4. DB 저장
-        int id = userRepository.save(user);
+        long id = userRepository.save(user);
 
         // 5. ResponseDTO 구성 및 반환
         SignUpResponseDTO response = new SignUpResponseDTO();
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     //회원조회 로직
-    public UserInfoResponseDTO getUserInfo(int userId){
+    public UserInfoResponseDTO getUserInfo(long userId){
 
         //Repository에서 user 조회
         User user = userRepository.findByID(userId);
