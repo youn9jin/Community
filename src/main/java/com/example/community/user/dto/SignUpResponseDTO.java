@@ -2,14 +2,15 @@ package com.example.community.user.dto;
 
 import com.example.community.user.UserStatus;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+@RequiredArgsConstructor
 public class SignUpResponseDTO {
-    private long userId;
-    private String email;
-    private String nickname;
-    private String profileImageUrl;
-    private UserStatus status;
+    private final Long userId;
+    private final String email;
+    private final String nickname;
+    private final String profileImageUrl;
+    private final UserStatus status;
 }
