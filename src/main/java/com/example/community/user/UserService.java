@@ -5,6 +5,7 @@ import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.global.exception.UserNotFoundException;
 import com.example.community.user.dto.SignUpRequestDTO;
 import com.example.community.user.dto.SignUpResponseDTO;
+import com.example.community.user.dto.UpdateUserRequestDTO;
 import com.example.community.user.dto.UserInfoResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,14 +48,13 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         // 5. ResponseDTO 구성 및 반환
-        SignUpResponseDTO response = new SignUpResponseDTO();
-        response.setUserId(savedUser.getUserId());
-        response.setEmail(savedUser.getEmail());
-        response.setNickname(savedUser.getNickname());
-        response.setProfileImageUrl(savedUser.getProfileImgUrl());
-        response.setStatus(savedUser.getStatus());
-
-        return response;
+        return new SignUpResponseDTO(
+                savedUser.getUserId(),
+                savedUser.getEmail(),
+                savedUser.getNickname(),
+                savedUser.getProfileImgUrl(),
+                savedUser.getStatus()
+        );
     }
 
     //회원조회 로직
@@ -66,15 +66,45 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         //user DTO로 변환
-        UserInfoResponseDTO dto = new UserInfoResponseDTO();
-        dto.setUserId(user.getUserId());
-        dto.setEmail(user.getEmail());
-        dto.setNickname(user.getNickname());
-        dto.setProfileImageUrl(user.getProfileImgUrl());
-
-        return dto;
+        return new UserInfoResponseDTO(
+                user.getUserId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getProfileImgUrl()
+        );
     }
 
+    //회원 정보 수정 메서드
+    @Transactional
+    public UserInfoResponseDTO updateUserInfo(long userId, UpdateUserRequestDTO request){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (request.getNickname() != null
+                && !request.getNickname().equals(user.getNickname())
+                && userRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
+            throw new DuplicateNicknameException();
+        }
+
+        if (request.getNickname() != null) {
+            user.setNickname(request.getNickname());
+        }
+
+        if (request.getProfileImgUrl() != null) {
+            user.setProfileImgUrl(request.getProfileImgUrl());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return new UserInfoResponseDTO(
+                updatedUser.getUserId(),
+                updatedUser.getEmail(),
+                updatedUser.getNickname(),
+                updatedUser.getProfileImgUrl()
+        );
+    }
+
+    //이메일 중복 체크 메서드
     @Transactional(readOnly = true)
     public void checkEmailDuplicate(String email){
         if(userRepository.existsByEmail(email)){
@@ -82,6 +112,7 @@ public class UserService {
         }
     }
 
+    //닉네임 중복 체크 메서드
     @Transactional(readOnly = true)
     public void checkNickNameDuplicate(String nickname){
         if(userRepository.existsByNickname(nickname)){

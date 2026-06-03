@@ -3,6 +3,7 @@ package com.example.community.user;
 import com.example.community.global.ResponseWrapper;
 import com.example.community.user.dto.SignUpRequestDTO;
 import com.example.community.user.dto.SignUpResponseDTO;
+import com.example.community.user.dto.UpdateUserRequestDTO;
 import com.example.community.user.dto.UserInfoResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,16 @@ public class UserController {
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable long userId){
         UserInfoResponseDTO response = userService.getUserInfo(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> updateUserInfo(
+            @PathVariable long userId,
+            @Valid @RequestBody UpdateUserRequestDTO request) {
+
+        UserInfoResponseDTO response = userService.updateUserInfo(userId, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseWrapper.success("user information update completed", response));
     }
 
     @GetMapping(params = "email")
