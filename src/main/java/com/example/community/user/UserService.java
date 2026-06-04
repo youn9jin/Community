@@ -41,7 +41,7 @@ public class UserService {
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 null,
-                request.getProfileImgUrl()
+                request.getProfileImageId()
         );
 
         // 4. DB 저장
@@ -52,7 +52,7 @@ public class UserService {
                 savedUser.getUserId(),
                 savedUser.getEmail(),
                 savedUser.getNickname(),
-                savedUser.getProfileImgUrl(),
+                savedUser.getProfileImageId(),
                 savedUser.getStatus()
         );
     }
@@ -70,7 +70,7 @@ public class UserService {
                 user.getUserId(),
                 user.getEmail(),
                 user.getNickname(),
-                user.getProfileImgUrl()
+                user.getProfileImageId()
         );
     }
 
@@ -90,8 +90,8 @@ public class UserService {
             user.setNickname(request.getNickname());
         }
 
-        if (request.getProfileImgUrl() != null) {
-            user.setProfileImgUrl(request.getProfileImgUrl());
+        if (request.getProfileImageId() != null) {
+            user.setProfileImageId(request.getProfileImageId());
         }
 
         User updatedUser = userRepository.save(user);
@@ -100,7 +100,7 @@ public class UserService {
                 updatedUser.getUserId(),
                 updatedUser.getEmail(),
                 updatedUser.getNickname(),
-                updatedUser.getProfileImgUrl()
+                updatedUser.getProfileImageId()
         );
     }
 

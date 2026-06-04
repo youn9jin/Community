@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 
 @Getter
 @RequiredArgsConstructor
@@ -22,6 +21,6 @@ public class SignUpRequestDTO {
     @NotEmpty(message = "비밀번호 입력은 필수항목입니다.")
     private final String password;
 
-    @URL
-    private final String profileImgUrl;
+    private final Long profileImageId;
+
 }

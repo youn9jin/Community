@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
+    private Long userId;
 
     @Column(unique = true)
     @Setter private String email;
@@ -29,15 +29,17 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
 
-    @Setter private String profileImgUrl;
+    @Setter
+    @Column(name = "profile_image_id", unique = true)
+    private Long profileImageId;
 
-    public User(String email, String nickname, String password, UserStatus status, LocalDateTime createdAt, LocalDateTime deletedAt, String profileImgUrl) {
+    public User(String email, String nickname, String password, UserStatus status, LocalDateTime createdAt, LocalDateTime deletedAt, Long profileImageId) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
         this.status = status;
         this.createdAt = createdAt;
         this.deletedAt = deletedAt;
-        this.profileImgUrl = profileImgUrl;
+        this.profileImageId = profileImageId;
     }
 }
