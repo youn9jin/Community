@@ -5,7 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface LikesRepository extends JpaRepository<Likes, LikesId> {
-    Optional<Likes> findByPostIdAndUserId(Integer postId, Integer userId);
-    boolean existsByPostIdAndUserId(Integer postId, Integer userId);
-    long countByPostId(Integer postId);
+    long countByPostId(Integer postId); //게시글 좋아요 수 확인 메서드
 }
