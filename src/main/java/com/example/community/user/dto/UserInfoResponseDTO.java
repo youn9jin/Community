@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class UserInfoResponseDTO {
-    private  final long userId;
+    private  final Integer userId;
     private final String email;
     private final String nickname;
-    private final Long profileImageId;
 }

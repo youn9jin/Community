@@ -1,78 +1,43 @@
 package com.example.community.post;
 
+import com.example.community.user.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
-    private int postId;
-    private String title;
-    private String content;
-    private int viewCount;
-    private String contentImgUrl;
-    private long userId;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer postId;
+
+    @Column(length = 26)
+    @Setter private String title;
+
+    @Setter private String content;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public int getPostId() {
-        return postId;
-    }
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
+    @Setter private Integer viewCount;
 
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
+
+    public Post(String title, String content, User user) {
         this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-    public void setContent(String content) {
         this.content = content;
-    }
-
-    public int getViewCount() {
-        return viewCount;
-    }
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
-    }
-
-    public String getContentImgUrl() {
-        return contentImgUrl;
-    }
-    public void setContentImgUrl(String contentImgUrl) {
-        this.contentImgUrl = contentImgUrl;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
+        this.user = user;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.viewCount = 0;
     }
 }

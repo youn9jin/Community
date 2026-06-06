@@ -2,8 +2,8 @@ package com.example.community.user;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
-public interface UserRepository extends JpaRepository <User, Long> {
+public interface UserRepository extends JpaRepository <User, Integer> {
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
-    boolean existsByNicknameAndUserIdNot(String nickname, Long userId);
+    boolean existsByNicknameAndUserIdNot(String nickname, Integer userId);
 }

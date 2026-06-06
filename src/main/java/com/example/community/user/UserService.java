@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -37,11 +35,7 @@ public class UserService {
         User user = new User(
                 request.getEmail(),
                 request.getNickname(),
-                request.getPassword(),
-                UserStatus.ACTIVE,
-                LocalDateTime.now(),
-                null,
-                request.getProfileImageId()
+                request.getPassword()
         );
 
         // 4. DB 저장
@@ -52,14 +46,13 @@ public class UserService {
                 savedUser.getUserId(),
                 savedUser.getEmail(),
                 savedUser.getNickname(),
-                savedUser.getProfileImageId(),
                 savedUser.getStatus()
         );
     }
 
     //회원조회 로직
     @Transactional(readOnly = true)
-    public UserInfoResponseDTO getUserInfo(long userId){
+    public UserInfoResponseDTO getUserInfo(Integer userId){
 
         //Repository에서 user 조회
         User user = userRepository.findById(userId)
@@ -69,14 +62,13 @@ public class UserService {
         return new UserInfoResponseDTO(
                 user.getUserId(),
                 user.getEmail(),
-                user.getNickname(),
-                user.getProfileImageId()
+                user.getNickname()
         );
     }
 
     //회원 정보 수정 메서드
     @Transactional
-    public UserInfoResponseDTO updateUserInfo(long userId, UpdateUserRequestDTO request){
+    public UserInfoResponseDTO updateUserInfo(Integer userId, UpdateUserRequestDTO request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -90,17 +82,12 @@ public class UserService {
             user.setNickname(request.getNickname());
         }
 
-        if (request.getProfileImageId() != null) {
-            user.setProfileImageId(request.getProfileImageId());
-        }
-
         User updatedUser = userRepository.save(user);
 
         return new UserInfoResponseDTO(
                 updatedUser.getUserId(),
                 updatedUser.getEmail(),
-                updatedUser.getNickname(),
-                updatedUser.getProfileImageId()
+                updatedUser.getNickname()
         );
     }
 

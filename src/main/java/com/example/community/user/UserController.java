@@ -27,14 +27,14 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable long userId){
+    public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable Integer userId){
         UserInfoResponseDTO response = userService.getUserInfo(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> updateUserInfo(
-            @PathVariable long userId,
+            @PathVariable Integer userId,
             @Valid @RequestBody UpdateUserRequestDTO request) {
 
         UserInfoResponseDTO response = userService.updateUserInfo(userId, request);
