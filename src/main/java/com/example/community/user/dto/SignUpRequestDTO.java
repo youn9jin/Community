@@ -20,5 +20,4 @@ public class SignUpRequestDTO {
 
     @NotEmpty(message = "비밀번호 입력은 필수항목입니다.")
     private final String password;
-
 }
