@@ -1,4 +1,4 @@
-package com.example.community.config;
+package com.example.community.global.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class QuerydslConfig {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager entityManager; //entity manager 주입
 
     @Bean
     public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
+        return new JPAQueryFactory(entityManager); //JPAQueryFactory 생성
     }
 }
