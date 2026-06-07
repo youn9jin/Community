@@ -1,78 +1,54 @@
 package com.example.community.user;
 
+import com.example.community.user.UserStatus;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-    private int userId;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer userId;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(unique = true)
     private String nickname;
+
     private String password;
+
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
+
     private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
-    private String profileImgUrl;
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
+    @Builder
+    public User(String email, String nickname, String password) {
         this.email = email;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
         this.nickname = nickname;
+        this.password = password;
+        this.status = UserStatus.ACTIVE;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
+    // 회원 정보 수정 메서드
+    public void update(String nickname, String password) {
+        this.nickname = nickname;
         this.password = password;
     }
 
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public String getProfileImgUrl() {
-        return profileImgUrl;
-    }
-
-    public void setProfileImgUrl(String profileImgUrl) {
-        this.profileImgUrl = profileImgUrl;
+    // 회원 탈퇴를 위한 soft delete 메서드
+    public void softDelete() {
+        this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
     }
 }

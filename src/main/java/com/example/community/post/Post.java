@@ -1,78 +1,58 @@
 package com.example.community.post;
 
+import com.example.community.user.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
-    private int postId;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer postId;
+
+    @Column(length = 26)
     private String title;
+
     private String content;
-    private int viewCount;
-    private String contentImgUrl;
-    private int userId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public int getPostId() {
-        return postId;
-    }
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
+    private Integer viewCount;
+    private Integer likeCount;
 
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Builder
+    public Post(String title, String content, User user) {
         this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-    public void setContent(String content) {
         this.content = content;
+        this.user = user;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.viewCount = 0;
+        this.likeCount = 0;
     }
 
-    public int getViewCount() {
-        return viewCount;
-    }
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
-    }
-
-    public String getContentImgUrl() {
-        return contentImgUrl;
-    }
-    public void setContentImgUrl(String contentImgUrl) {
-        this.contentImgUrl = contentImgUrl;
+    //게시글 수정을 위한 메서드
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public int getUserId() {
-        return userId;
-    }
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
+    // 게시글 삭제를 위한 메서드
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
