@@ -2,6 +2,9 @@ package com.example.community.global;
 
 import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
+import com.example.community.global.exception.ForbiddenException;
+import com.example.community.global.exception.PostNotFoundException;
+import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,33 @@ public class GlobalExceptionHandler {
                 .body(ResponseWrapper.error(400, "Invalid request", "BAD_REQUEST"));
     }
 
+    //401 - 인증 실패
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleUnauthorized(UnauthorizedException e) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResponseWrapper.error(401, e.getMessage(), "UNAUTHORIZED"));
+    }
+
+    //403 - 권한 없음
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleForbidden(ForbiddenException e) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ResponseWrapper.error(403, e.getMessage(), "FORBIDDEN"));
+    }
+
     //404 - User 조회 실패
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ResponseWrapper<?>> handleUserNotFound(UserNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
+    }
+
+    //404 - Post 조회 실패
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handlePostNotFound(PostNotFoundException e) {
 
         return ResponseEntity.status(404)
                 .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));

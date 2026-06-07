@@ -2,8 +2,6 @@ package com.example.community.likes;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
 public interface LikesRepository extends JpaRepository<Likes, LikesId> {
-    long countByPostId(Integer postId); //게시글 좋아요 수 확인 메서드
+    long countByIdPostId(Integer postId); //게시글 좋아요 수 확인 메서드
 }

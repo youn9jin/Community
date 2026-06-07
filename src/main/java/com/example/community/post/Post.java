@@ -24,12 +24,13 @@ public class Post {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    @Setter private LocalDateTime deletedAt;
 
     @Setter private Integer viewCount;
+    @Setter private Integer likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Post(String title, String content, User user) {
@@ -39,5 +40,6 @@ public class Post {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.viewCount = 0;
+        this.likeCount = 0;
     }
 }

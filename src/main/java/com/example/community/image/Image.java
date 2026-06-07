@@ -32,11 +32,11 @@ public class Image {
     @Setter private String thumbnailPath;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", referencedColumnName = "post_id")
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Image(boolean active, String storagePath, String thumbnailPath, Post post, User user) {

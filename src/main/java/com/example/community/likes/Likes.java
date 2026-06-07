@@ -20,12 +20,12 @@ public class Likes {
 
     @MapsId("postId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", referencedColumnName = "post_id") // 실제 DB에 생성될 FK 컬럼명
+    @JoinColumn(name = "post_id") // 실제 DB에 생성될 FK 컬럼명
     private Post post;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDateTime createdAt;

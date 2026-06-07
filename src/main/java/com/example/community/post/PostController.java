@@ -30,7 +30,7 @@ public class PostController {
     public ResponseEntity<ResponseWrapper<PostDetailResponseDTO>> getPost(@PathVariable Integer postId) {
         PostDetailResponseDTO response = postService.getPost(postId);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ResponseWrapper.success("post detail load completed", response));
+                .body(ResponseWrapper.success("load completed", response));
     }
 
     @PostMapping
@@ -40,7 +40,7 @@ public class PostController {
 
         PostResponseDTO response = postService.createPost(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseWrapper.success("post creation completed", response));
+                .body(ResponseWrapper.success("post uploading success", response));
     }
 
     @PatchMapping("/{postId}")
@@ -51,16 +51,15 @@ public class PostController {
 
         PostResponseDTO response = postService.updatePost(postId, userId, request);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ResponseWrapper.success("post update completed", response));
+                .body(ResponseWrapper.success("modified uploading success", response));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ResponseWrapper<Void>> deletePost(
+    public ResponseEntity<Void> deletePost(
             @PathVariable Integer postId,
             @RequestParam Integer userId) {
 
         postService.deletePost(postId, userId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ResponseWrapper.success("post deletion completed", null));
+        return ResponseEntity.noContent().build(); //204 응답
     }
 }
