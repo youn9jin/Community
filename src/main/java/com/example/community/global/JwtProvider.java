@@ -31,6 +31,7 @@ public class JwtProvider {
         this.refreshExpiration = refreshExpiration;
     }
 
+    // userId를 담은 Access Token 생성
     public String createAccessToken(Integer userId){
         Date now = new Date();
 
@@ -45,6 +46,7 @@ public class JwtProvider {
                 .compact(); //압축 문자열 최종 변환
     }
 
+    // Refresh Token으로 사용할 임의의 JWT 문자열 생성
     public String createRefreshToken(){
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshExpiration);
@@ -76,6 +78,7 @@ public class JwtProvider {
     }
 
 
+    // Access Token의 subject에서 userId 추출
     public Integer getUserId(String token) {
         return Integer.valueOf(
                 parse(token).getPayload().getSubject()

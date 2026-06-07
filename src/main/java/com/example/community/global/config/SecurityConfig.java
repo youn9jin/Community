@@ -21,6 +21,7 @@ public class SecurityConfig {
 
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
+    // 인증/인가 정책과 JWT 필터를 Spring Security 필터 체인에 등록
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -51,6 +52,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // 비밀번호 암호화 및 검증에 사용할 BCrypt PasswordEncoder 등록
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

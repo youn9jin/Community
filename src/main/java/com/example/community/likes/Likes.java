@@ -31,6 +31,7 @@ public class Likes {
 
     private LocalDateTime createdAt;
 
+    // 좋아요 생성 시 Post와 User를 기반으로 복합키 생성
     @Builder
     public Likes(Post post, User user) {
         this.id = new LikesId(post.getPostId(), user.getUserId());

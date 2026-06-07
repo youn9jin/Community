@@ -33,6 +33,7 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // 게시글 작성 시 필요한 값으로 Post 엔티티 생성
     @Builder
     public Post(String title, String content, User user) {
         this.title = title;

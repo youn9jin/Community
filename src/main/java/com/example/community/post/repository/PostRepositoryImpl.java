@@ -44,6 +44,6 @@ import java.util.List;
                 .where(QPost.post.deletedAt.isNull())
                 .fetchOne(); // 전체 개수 값을 단일 결과로 가져옴
 
-        return new PageImpl<>(content, pageable, total); // 조회된 게시글 목록, 페이지 정보, 전체 개수를 Page 객체로 감싸 반환합니다.
+        return new PageImpl<>(content, pageable, total); // 조회된 게시글 목록, 페이지 정보, 전체 개수를 Page 객체로 반환
     }
 }

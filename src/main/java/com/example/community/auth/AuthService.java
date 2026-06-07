@@ -113,6 +113,7 @@ public class AuthService {
 
 
     //3. 로그아웃
+    // userId에 해당하는 사용자의 Refresh Token 삭제
     public void logout(Integer userId){
 
         User user = userRepository.findById(userId)
