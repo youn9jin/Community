@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,8 +37,10 @@ public class AuthController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> logout(@RequestParam Integer userId) {
+    public ResponseEntity<Void> logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = (Integer) authentication.getPrincipal();
         authService.logout(userId);
-        return ResponseEntity.noContent().build(); //204 응답
+        return ResponseEntity.noContent().build();
     }
 }

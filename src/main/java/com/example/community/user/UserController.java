@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,11 +34,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> updateUserInfo(
-            @PathVariable Integer userId,
             @Valid @RequestBody UpdateUserRequestDTO request) {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = (Integer) authentication.getPrincipal();
         UserInfoResponseDTO response = userService.updateUserInfo(userId, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("user information update completed", response));

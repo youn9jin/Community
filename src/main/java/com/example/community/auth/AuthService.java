@@ -68,7 +68,7 @@ public class AuthService {
     public LoginResponseDTO refresh(String rawRefreshToken){
 
         // 1. DB에서 RT 조회
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(rawRefreshToken)
+        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(rawRefreshToken)
                 .orElseThrow(() -> new UnauthorizedException());
 
         //2. 만료 확인

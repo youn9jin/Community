@@ -92,10 +92,6 @@ public class PostService {
     //3. 게시글 작성
     @Transactional
     public PostResponseDTO createPost(Integer userId, PostRequestDTO request){
-        if (userId == null) { // 인가 받지 않은 메서드에 대한 에러처리, 추후 변경 예정
-            throw new UnauthorizedException();
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException());
 
@@ -124,10 +120,6 @@ public class PostService {
     //4. 게시글 수정
     @Transactional
     public PostResponseDTO updatePost(Integer postId, Integer userId, PostRequestDTO request){
-        if (userId == null) { //userId 값이 들어오지 않는 상황에 대한 예외처리
-            throw new UnauthorizedException();
-        }
-
         User user = userRepository.findById(userId) // 인가 받지 않은 메서드에 대한 에러처리, 추후 변경 예정
                 .orElseThrow(() -> new UnauthorizedException());
 
@@ -157,12 +149,7 @@ public class PostService {
     //5. 게시글 삭제
     @Transactional
     public void deletePost(Integer postId, Integer userId){
-
-        if (userId == null) {
-            throw new UnauthorizedException();
-        }
-
-        User user = userRepository.findById(userId) // 인가 받지 않은 메서드에 대한 에러처리, 추후 변경 예정
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException());
 
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)

@@ -8,6 +8,7 @@ import com.example.community.user.dto.SignUpResponseDTO;
 import com.example.community.user.dto.UpdateUserRequestDTO;
 import com.example.community.user.dto.UserInfoResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     //회원가입 로직
     @Transactional
@@ -35,7 +38,7 @@ public class UserService {
         User user = new User(
                 request.getEmail(),
                 request.getNickname(),
-                request.getPassword()
+                passwordEncoder.encode(request.getPassword()) //암호화해서 저장
         );
 
         // 4. DB 저장

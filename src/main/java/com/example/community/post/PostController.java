@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,9 +37,10 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<ResponseWrapper<PostResponseDTO>> createPost(
-            @RequestParam Integer userId,
             @Valid @RequestBody PostRequestDTO request) {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = (Integer) authentication.getPrincipal();
         PostResponseDTO response = postService.createPost(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseWrapper.success("post uploading success", response));
@@ -46,9 +49,10 @@ public class PostController {
     @PatchMapping("/{postId}")
     public ResponseEntity<ResponseWrapper<PostResponseDTO>> updatePost(
             @PathVariable Integer postId,
-            @RequestParam Integer userId,
             @Valid @RequestBody PostRequestDTO request) {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = (Integer) authentication.getPrincipal();
         PostResponseDTO response = postService.updatePost(postId, userId, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("modified uploading success", response));
@@ -56,9 +60,10 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            @PathVariable Integer postId,
-            @RequestParam Integer userId) {
+            @PathVariable Integer postId) {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = (Integer) authentication.getPrincipal();
         postService.deletePost(postId, userId);
         return ResponseEntity.noContent().build(); //204 응답
     }
