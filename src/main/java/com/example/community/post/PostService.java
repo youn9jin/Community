@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -139,8 +138,7 @@ public class PostService {
             throw new ForbiddenException();
         }
 
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
+        post.update(request.getTitle(), request.getContent());
 
         return new PostResponseDTO(
                 post.getPostId(),
@@ -174,6 +172,6 @@ public class PostService {
             throw new ForbiddenException("don't have rights to delete");
         }
 
-        post.setDeletedAt(LocalDateTime.now());
+        post.softDelete();
     }
 }

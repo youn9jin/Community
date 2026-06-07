@@ -5,6 +5,7 @@ import com.example.community.post.Post;
 import com.example.community.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,7 @@ public class Likes {
 
     private LocalDateTime createdAt;
 
+    @Builder
     public Likes(Post post, User user) {
         this.id = new LikesId(post.getPostId(), user.getUserId());
         this.post = post;

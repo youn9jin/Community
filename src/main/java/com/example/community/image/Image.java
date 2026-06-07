@@ -4,9 +4,9 @@ import com.example.community.post.Post;
 import com.example.community.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,16 +20,15 @@ public class Image {
     private Integer imageId;
 
     @Column(name = "is_active")
-    @Setter private boolean active;
+    private boolean active;
 
     private LocalDateTime createdAt;
 
-    @Setter
     @Column(unique = true, length = 500)
     private String storagePath;
 
     @Column(unique = true, length = 500)
-    @Setter private String thumbnailPath;
+    private String thumbnailPath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
@@ -39,6 +38,7 @@ public class Image {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
     public Image(boolean active, String storagePath, String thumbnailPath, Post post, User user) {
         this.active = active;
         this.createdAt = LocalDateTime.now();

@@ -79,15 +79,13 @@ public class UserService {
         }
 
         if (request.getNickname() != null) {
-            user.setNickname(request.getNickname());
+            user.update(request.getNickname(), user.getPassword());
         }
 
-        User updatedUser = userRepository.save(user);
-
         return new UserInfoResponseDTO(
-                updatedUser.getUserId(),
-                updatedUser.getEmail(),
-                updatedUser.getNickname()
+                user.getUserId(),
+                user.getEmail(),
+                user.getNickname()
         );
     }
 

@@ -4,9 +4,9 @@ import com.example.community.post.Post;
 import com.example.community.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ public class Comment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentId;
 
-    @Setter private String content;
+    private String content;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -32,6 +32,7 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Builder
     public Comment(String content, User user, Post post) {
         this.content = content;
         this.user = user;

@@ -3,9 +3,9 @@ package com.example.community.post;
 import com.example.community.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -18,21 +18,22 @@ public class Post {
     private Integer postId;
 
     @Column(length = 26)
-    @Setter private String title;
+    private String title;
 
-    @Setter private String content;
+    private String content;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @Setter private LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
-    @Setter private Integer viewCount;
-    @Setter private Integer likeCount;
+    private Integer viewCount;
+    private Integer likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
     public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
@@ -41,5 +42,17 @@ public class Post {
         this.updatedAt = LocalDateTime.now();
         this.viewCount = 0;
         this.likeCount = 0;
+    }
+
+    //게시글 수정을 위한 메서드
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 게시글 삭제를 위한 메서드
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
