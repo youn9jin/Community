@@ -18,6 +18,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    // 로그인 처리 및 Access Token, Refresh Token 발급
     @PostMapping
     public ResponseEntity<ResponseWrapper<LoginResponseDTO>> login(
             @Valid @RequestBody LoginRequestDTO request) {
@@ -27,6 +28,7 @@ public class AuthController {
                 .body(ResponseWrapper.success("Login_success", response));
     }
 
+    // Refresh Token 검증 및 새 토큰 재발급
     @PostMapping("/refreshToken")
     public ResponseEntity<ResponseWrapper<LoginResponseDTO>> refresh(
             @RequestParam String refreshToken) {
@@ -36,6 +38,7 @@ public class AuthController {
                 .body(ResponseWrapper.success("Token_refresh_success", response));
     }
 
+    // 현재 인증된 사용자의 Refresh Token 삭제 및 로그아웃 처리
     @DeleteMapping
     public ResponseEntity<Void> logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

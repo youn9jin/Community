@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
+    // 게시글 목록 페이지 조회
     @GetMapping
     public ResponseEntity<ResponseWrapper<Page<PostListResposneDTO>>> getPosts(Pageable pageable) {
         Page<PostListResposneDTO> response = postService.getPosts(pageable);
@@ -28,6 +29,7 @@ public class PostController {
                 .body(ResponseWrapper.success("post list load completed", response));
     }
 
+    // postId에 해당하는 게시글 상세 조회
     @GetMapping("/{postId}")
     public ResponseEntity<ResponseWrapper<PostDetailResponseDTO>> getPost(@PathVariable Integer postId) {
         PostDetailResponseDTO response = postService.getPost(postId);
@@ -35,6 +37,7 @@ public class PostController {
                 .body(ResponseWrapper.success("load completed", response));
     }
 
+    // 인증된 사용자의 userId로 새 게시글 작성
     @PostMapping
     public ResponseEntity<ResponseWrapper<PostResponseDTO>> createPost(
             @Valid @RequestBody PostRequestDTO request) {
@@ -46,6 +49,7 @@ public class PostController {
                 .body(ResponseWrapper.success("post uploading success", response));
     }
 
+    // 인증된 사용자의 본인 게시글 수정
     @PatchMapping("/{postId}")
     public ResponseEntity<ResponseWrapper<PostResponseDTO>> updatePost(
             @PathVariable Integer postId,
@@ -58,6 +62,7 @@ public class PostController {
                 .body(ResponseWrapper.success("modified uploading success", response));
     }
 
+    // 인증된 사용자의 본인 게시글 soft delete
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
             @PathVariable Integer postId) {

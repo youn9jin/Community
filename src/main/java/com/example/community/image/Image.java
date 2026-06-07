@@ -38,6 +38,7 @@ public class Image {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // 이미지 저장 시 필요한 값으로 Image 엔티티 생성
     @Builder
     public Image(boolean active, String storagePath, String thumbnailPath, Post post, User user) {
         this.active = active;
