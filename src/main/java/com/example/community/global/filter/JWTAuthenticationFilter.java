@@ -26,8 +26,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     // 필터 제외 경로
     private static final String[] EXCLUDED_PATHS = {
-            "/auth/login",         // 로그인
-            "/auth/refreshToken",  // 토큰 재발급
             "/error"               // 에러 페이지
     };
 
@@ -36,6 +34,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        if ("POST".equals(method) && ("/auth".equals(path) || "/auth/refreshToken".equals(path))) {
+            return true;
+        }
+
         return Arrays.stream(EXCLUDED_PATHS).anyMatch(path::startsWith);
     }
 

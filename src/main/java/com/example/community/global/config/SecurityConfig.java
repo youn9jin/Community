@@ -29,7 +29,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth", "/auth/refreshToken").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth", "/auth/refreshToken").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts", "/posts/**").permitAll()
                         .anyRequest().authenticated()

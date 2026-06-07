@@ -60,11 +60,13 @@ public class AuthService {
                         user.getEmail(),
                         user.getNickname()
                 ),
-                accessToken
+                accessToken,
+                rawRefreshToken
         );
     }
 
     //2. RT 토큰 재발급(RTR)
+    @Transactional
     public LoginResponseDTO refresh(String rawRefreshToken){
 
         // 1. DB에서 RT 조회
@@ -103,7 +105,8 @@ public class AuthService {
                         user.getEmail(),
                         user.getNickname()
                 ),
-                newAccessToken
+                newAccessToken,
+                newRawRefreshToken
         );
 
     }
