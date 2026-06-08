@@ -82,7 +82,7 @@ public class AuthService {
         //3. 유저 조회
         User user = refreshToken.getUser();
 
-        // 4. 기존 RT 삭제 (RTR 핵심: 한 번 쓰면 폐기)
+        // 4. 기존 RT 삭제
         refreshTokenRepository.delete(refreshToken);
 
         // 5. 새 AT 생성
@@ -113,7 +113,6 @@ public class AuthService {
 
 
     //3. 로그아웃
-    // userId에 해당하는 사용자의 Refresh Token 삭제
     public void logout(Integer userId){
 
         User user = userRepository.findById(userId)

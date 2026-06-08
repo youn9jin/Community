@@ -30,7 +30,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     };
 
     // 필터 제외 경로 설정
-    // path가 EXCLUDED_PATHS 중 하나로 시작하면 필터 건너뜀
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -55,7 +54,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         Optional<String> token = extractToken(request);
 
         // 2. 토큰 없음 → 그냥 통과
-        // 토큰 없이 통과해도 SecurityConfig의 .authenticated()가 막아줌
         if (token.isEmpty()) {
             chain.doFilter(request, response);
             return;
@@ -81,7 +79,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         return Optional.ofNullable(request.getHeader("Authorization"))
                 .filter(header -> header.startsWith("Bearer "))
                 .map(header -> header.substring(7));
-        // "Bearer eyJ..." → "eyJ..."
     }
 
     // 쿠키에서 토큰 추출
@@ -105,7 +102,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userId,   // principal: Controller에서 꺼낼 userId
+                            userId,
                             null,
                             List.of() // 권한 없음
                     );

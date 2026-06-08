@@ -15,7 +15,7 @@ import java.util.List;
 
     private final JPAQueryFactory queryFactory;
 
-    @Override // 인터페이스의 findActivePosts 메서드를 구현
+    @Override
     public Page<Post> findActivePosts(Pageable pageable) {
 
         List<Integer> ids = queryFactory

@@ -30,8 +30,8 @@ public class ResponseWrapper<T> {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ErrorBody {
-        private int code;       // 명세: int
+        private int code;
         private String message;
-        private String status;  // 명세: "BAD_REQUEST" 등
+        private String status;
     }
 }

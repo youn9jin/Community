@@ -29,7 +29,6 @@ public class RefreshToken {
     private User user;
 
 
-    // Refresh Token 저장 시 사용자, 토큰 값, 만료 시간 기록
     @Builder
     public RefreshToken(User user, String refreshToken, LocalDateTime expiresAt) {
         this.user = user;

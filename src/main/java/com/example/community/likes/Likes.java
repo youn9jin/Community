@@ -21,7 +21,7 @@ public class Likes {
 
     @MapsId("postId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id") // 실제 DB에 생성될 FK 컬럼명
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @MapsId("userId")
