@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 public class QuerydslConfig {
 
     @PersistenceContext
-    private EntityManager entityManager; //entity manager 주입
+    private EntityManager entityManager;
 
-    // QueryDSL 쿼리 작성을 위한 JPAQueryFactory Bean 등록
+
     @Bean
     public JPAQueryFactory jpaQueryFactory() {
         return new JPAQueryFactory(entityManager); //JPAQueryFactory 생성

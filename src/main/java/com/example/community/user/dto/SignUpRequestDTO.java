@@ -15,7 +15,7 @@ public class SignUpRequestDTO {
     private final String email;
 
     @NotEmpty(message = "닉네임은 필수항목입니다.")
-    @Size(min = 3, max = 25) //닉네임 길이 설정
+    @Size(min = 3, max = 25)
     private final String nickname;
 
     @NotEmpty(message = "비밀번호 입력은 필수항목입니다.")

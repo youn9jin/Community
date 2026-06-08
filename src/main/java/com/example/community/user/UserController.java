@@ -20,7 +20,6 @@ public class UserController {
 
     private final UserService userService;
 
-    // 회원가입 처리 및 생성된 사용자 정보 반환
     @PostMapping
     public ResponseEntity<ResponseWrapper<SignUpResponseDTO>> signUp(
             @Valid @RequestBody SignUpRequestDTO request) {
@@ -29,14 +28,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseWrapper.success("registeration success", response));
     }
 
-    // userId에 해당하는 사용자 정보 조회
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(@PathVariable Integer userId){
         UserInfoResponseDTO response = userService.getUserInfo(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success("user Information load completed", response));
     }
 
-    // 현재 인증된 사용자의 회원 정보 수정
+
     @PatchMapping
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> updateUserInfo(
             @Valid @RequestBody UpdateUserRequestDTO request) {

@@ -52,7 +52,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 비밀번호 암호화 및 검증에 사용할 BCrypt PasswordEncoder 등록
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

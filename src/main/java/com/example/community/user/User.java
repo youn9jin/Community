@@ -31,7 +31,6 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
 
-    // 회원가입 시 필요한 값으로 User 엔티티 생성
     @Builder
     public User(String email, String nickname, String password) {
         this.email = email;

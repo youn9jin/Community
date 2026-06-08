@@ -32,7 +32,6 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    // 댓글 작성 시 필요한 값으로 Comment 엔티티 생성
     @Builder
     public Comment(String content, User user, Post post) {
         this.content = content;
