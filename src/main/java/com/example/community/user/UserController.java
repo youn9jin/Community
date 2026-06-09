@@ -67,5 +67,4 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("does not have same nickname", null));
     }
-
 }
