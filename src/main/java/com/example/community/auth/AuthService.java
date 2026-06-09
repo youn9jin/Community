@@ -7,6 +7,8 @@ import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
 import com.example.community.user.dto.UserInfoResponseDTO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,17 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    //Cookie 설정을 위한 RT를 전달받기 위한 wrapper
+    @Getter
+    @AllArgsConstructor
+    public static class LoginResult{
+        private LoginResponseDTO loginResponse;
+        private String refreshToken;
+    }
+
     //1. 로그인
     @Transactional
-    public LoginResponseDTO login(LoginRequestDTO request) {
+    public LoginResult login(LoginRequestDTO request) {
 
         // 1. 이메일 검증
         User user = userRepository.findByEmail(request.getEmail())
@@ -53,21 +63,23 @@ public class AuthService {
                 .build();
         refreshTokenRepository.save(refreshToken);
 
-        // 7. AT + RT 반환
-        return new LoginResponseDTO(
-                new UserInfoResponseDTO(
-                        user.getUserId(),
-                        user.getEmail(),
-                        user.getNickname()
+        // 7. AT 반환 + RT 반환
+        return new LoginResult(
+                new LoginResponseDTO(
+                        new UserInfoResponseDTO(
+                                user.getUserId(),
+                                user.getEmail(),
+                                user.getNickname()
+                        ),
+                        accessToken
                 ),
-                accessToken,
                 rawRefreshToken
         );
     }
 
-    //2. RT 토큰 재발급(RTR)
+    //2. RT 재발급(RTR)
     @Transactional
-    public LoginResponseDTO refresh(String rawRefreshToken){
+    public LoginResult refresh(String rawRefreshToken){
 
         // 1. DB에서 RT 조회
         RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(rawRefreshToken)
@@ -75,7 +87,7 @@ public class AuthService {
 
         //2. 만료 확인
         if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.delete(refreshToken); // 만료된 RT는 DB에서 삭제
+            refreshTokenRepository.deleteByRefreshToken(refreshToken); // 만료된 RT는 DB에서 삭제
             throw new UnauthorizedException(); //재로그인 하라고 client에게 전송
         }
 
@@ -83,7 +95,7 @@ public class AuthService {
         User user = refreshToken.getUser();
 
         // 4. 기존 RT 삭제
-        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.deleteByRefreshToken(refreshToken);
 
         // 5. 새 AT 생성
         String newAccessToken = jwtProvider.createAccessToken(user.getUserId());
@@ -99,13 +111,15 @@ public class AuthService {
         refreshTokenRepository.save(newRefreshToken);
 
         // 7. 새 AT + 새 RT 반환
-        return new LoginResponseDTO(
-                new UserInfoResponseDTO(
-                        user.getUserId(),
-                        user.getEmail(),
-                        user.getNickname()
+        return new LoginResult(  // LoginResponseDTO 대신 LoginResult 반환
+                new LoginResponseDTO(
+                        new UserInfoResponseDTO(
+                                user.getUserId(),
+                                user.getEmail(),
+                                user.getNickname()
+                        ),
+                        newAccessToken
                 ),
-                newAccessToken,
                 newRawRefreshToken
         );
 
@@ -113,6 +127,7 @@ public class AuthService {
 
 
     //3. 로그아웃
+    @Transactional
     public void logout(Integer userId){
 
         User user = userRepository.findById(userId)
