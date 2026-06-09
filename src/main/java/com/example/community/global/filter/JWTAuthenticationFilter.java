@@ -53,13 +53,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         // 1. 토큰 추출
         Optional<String> token = extractToken(request);
 
-        // 2. 토큰 없음 → 그냥 통과
+        // 2. 토큰 없음 → 다음 filter로 이동
         if (token.isEmpty()) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 3. 토큰 검증 및 SecurityContext 저장
+        // 3. 토큰 있을 시 -> 유효하지 않은 경우 -> 401 에러
         if (!validateAndSetAuthentication(token.get())) {
             writeUnauthorizedResponse(response);
             return;
@@ -94,20 +94,20 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     // 토큰 검증 및 SecurityContext 저장
     private boolean validateAndSetAuthentication(String token) {
         try {
-            if (!jwtProvider.validate(token)) {
+            if (!jwtProvider.validate(token)) { // 1. 서명 검증 및 만료 여부 확인
                 return false;
             }
 
-            Integer userId = jwtProvider.getUserId(token);
+            Integer userId = jwtProvider.getUserId(token); // 2. 유저 id 추출
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,
-                            null,
-                            List.of() // 권한 없음
+                            null, // 이미 JWT 서명으로 인증 완료 -> 더 이상의 인증 여부 확인 필요X
+                            List.of() // 사용자 등급에 따른 권한 목록 -> 없음
                     );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication); //3. 저장
 
             return true;
 
@@ -116,6 +116,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    //401 응답 통일을 위해 직접 작성
     private void writeUnauthorizedResponse(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
