@@ -13,13 +13,13 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Inte
     Optional<RefreshToken> findByRefreshToken(String refreshToken);
 
     // 특정 user의 RT 전체 삭제
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("DELETE FROM RefreshToken r WHERE r.user = :user")
     void deleteByUser(@Param("user") User user);
 
     // 특정 RT 삭제 -> RTR 용도
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("DELETE FROM RefreshToken r WHERE r = :refreshToken")
     void deleteByRefreshToken(@Param("refreshToken") RefreshToken refreshToken);
