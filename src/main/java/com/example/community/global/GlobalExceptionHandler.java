@@ -9,6 +9,7 @@ import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException e) {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ResponseWrapper.error(400, "Invalid request", "BAD_REQUEST"));
+                .body(ResponseWrapper.error(400, getValidationErrorMessage(e), "BAD_REQUEST"));
     }
 
     //401 - 인증 실패
@@ -84,5 +85,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseWrapper.error(500, "Internal server error",
                         "INTERNAL_SERVER_ERROR"));
+    }
+
+    // Validation 실패 원인에 따른 400 메시지 구분
+    private String getValidationErrorMessage(MethodArgumentNotValidException e) {
+        FieldError fieldError = e.getBindingResult().getFieldError();
+
+        if (fieldError != null
+                && ("NotEmpty".equals(fieldError.getCode())
+                || "NotBlank".equals(fieldError.getCode())
+                || "NotNull".equals(fieldError.getCode()))) {
+            return "missing field";
+        }
+
+        return "bad request";
     }
 }

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UpdateUserRequestDTO {
 
-    @Size(min = 3, max = 25, message = "닉네임은 3~25자 사이어야 합니다.")
+    @Size(min = 3, max = 25)
     private final String nickname;
 
 }
