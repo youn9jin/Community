@@ -46,7 +46,7 @@ public class PostService {
                         post.getUpdatedAt(),
                         post.getViewCount(), // 조회 수
                         (int)(likesRepository.countByIdPostId(post.getPostId())), //좋아요 수
-                        commentRepository.findAllByPostPostIdAndDeletedAtIsNull(post.getPostId()).size() //댓글 수
+                        commentRepository.findActiveCommentsByPostId(post.getPostId()).size() //댓글 수
                 ));
     }
 
@@ -74,7 +74,7 @@ public class PostService {
     }
 
     private List<CommentResponseDTO> getCommentResponses(Integer postId) {
-        return commentRepository.findAllByPostPostIdAndDeletedAtIsNull(postId)
+        return commentRepository.findActiveCommentsByPostId(postId)
                 .stream() //댓글 목록 하나씩 mapping 할 수 있도록 stream 활용
                 .map(comment -> new CommentResponseDTO(
                         comment.getCommentId(),

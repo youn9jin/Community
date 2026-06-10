@@ -18,6 +18,7 @@ public class Comment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentId;
 
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     private LocalDateTime createdAt;
@@ -39,5 +40,16 @@ public class Comment {
         this.post = post;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // 댓글 수정 메서드
+    public void update(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 댓글 삭제 메서드
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
