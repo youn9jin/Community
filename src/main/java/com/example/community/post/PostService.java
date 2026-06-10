@@ -13,7 +13,7 @@ import com.example.community.post.dto.PostResponseDTO;
 import com.example.community.post.repository.PostRepository;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
-import com.example.community.user.dto.UserInfoResponseDTO;
+import com.example.community.user.dto.WriterDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,10 +38,10 @@ public class PostService {
                         post.getPostId(),
                         post.getTitle(),
                         post.getCreatedAt(),
-                        new UserInfoResponseDTO(
+                        new WriterDTO(
                                 post.getUser().getUserId(),
-                                post.getUser().getEmail(),
-                                post.getUser().getNickname()
+                                post.getUser().getNickname(),
+                                null
                         ),
                         post.getUpdatedAt(),
                         post.getViewCount(), // 조회 수
@@ -60,10 +60,10 @@ public class PostService {
                 post.getPostId(),
                 post.getTitle(),
                 post.getCreatedAt(),
-                new UserInfoResponseDTO(
+                new WriterDTO(
                         post.getUser().getUserId(),
-                        post.getUser().getEmail(),
-                        post.getUser().getNickname()
+                        post.getUser().getNickname(),
+                        null
                 ),
                 post.getUpdatedAt(),
                 post.getViewCount(),
@@ -78,10 +78,10 @@ public class PostService {
                 .stream() //댓글 목록 하나씩 mapping 할 수 있도록 stream 활용
                 .map(comment -> new CommentResponseDTO(
                         comment.getCommentId(),
-                        new UserInfoResponseDTO(
+                        new WriterDTO(
                                 comment.getUser().getUserId(),
-                                comment.getUser().getEmail(),
-                                comment.getUser().getNickname()
+                                comment.getUser().getNickname(),
+                                null
                         ),
                         comment.getCreatedAt(),
                         comment.getContent()
@@ -106,10 +106,10 @@ public class PostService {
         return new PostResponseDTO(
                 savedPost.getPostId(),
                 savedPost.getTitle(),
-                new UserInfoResponseDTO(
+                new WriterDTO(
                         savedPost.getUser().getUserId(),
-                        savedPost.getUser().getEmail(),
-                        savedPost.getUser().getNickname()
+                        savedPost.getUser().getNickname(),
+                        null
                 ),
                 savedPost.getContent(),
                 savedPost.getCreatedAt(),
@@ -120,13 +120,10 @@ public class PostService {
     //4. 게시글 수정
     @Transactional
     public PostResponseDTO updatePost(Integer postId, Integer userId, PostRequestDTO request){
-        User user = userRepository.findById(userId) // 인가 받지 않은 메서드에 대한 에러처리, 추후 변경 예정
-                .orElseThrow(() -> new UnauthorizedException());
-
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        if (!post.getUser().getUserId().equals(user.getUserId())) { //게시글 작성자가 아닌 경우 403 에러 처리
+        if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException();
         }
 
@@ -135,10 +132,10 @@ public class PostService {
         return new PostResponseDTO(
                 post.getPostId(),
                 post.getTitle(),
-                new UserInfoResponseDTO(
+                new WriterDTO(
                         post.getUser().getUserId(),
-                        post.getUser().getEmail(),
-                        post.getUser().getNickname()
+                        post.getUser().getNickname(),
+                        null
                 ),
                 post.getContent(),
                 post.getCreatedAt(),
@@ -149,13 +146,10 @@ public class PostService {
     //5. 게시글 삭제
     @Transactional
     public void deletePost(Integer postId, Integer userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException());
-
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        if (!post.getUser().getUserId().equals(user.getUserId())) { //게시글 작성자가 아닌 경우 403 에러 처리
+        if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException("don't have rights to delete");
         }
 

@@ -1,17 +1,14 @@
 package com.example.community.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL) //image 구현 전 임시
-public class UserInfoResponseDTO {
-    private  final Integer userId;
-    private final String email;
+@JsonInclude(JsonInclude.Include.NON_NULL) //이미지 도메인 구현 전 임시 장치
+public class WriterDTO {
+    private final Integer userId;
     private final String nickname;
-    @JsonProperty("profileImg_url")
     private final String profileImgUrl;
 }
