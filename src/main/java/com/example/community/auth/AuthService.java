@@ -69,7 +69,8 @@ public class AuthService {
                         new UserInfoResponseDTO(
                                 user.getUserId(),
                                 user.getEmail(),
-                                user.getNickname()
+                                user.getNickname(),
+                                null
                         ),
                         accessToken
                 ),
@@ -116,7 +117,8 @@ public class AuthService {
                         new UserInfoResponseDTO(
                                 user.getUserId(),
                                 user.getEmail(),
-                                user.getNickname()
+                                user.getNickname(),
+                                null
                         ),
                         newAccessToken
                 ),

@@ -1,6 +1,6 @@
 package com.example.community.post.dto;
 
-import com.example.community.user.dto.UserInfoResponseDTO;
+import com.example.community.user.dto.WriterDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ public class PostListResposneDTO {
     private final Integer postId;
     private final String title;
     private final LocalDateTime createdAt;
-    private final UserInfoResponseDTO user;
+    private final WriterDTO writer;
     private final LocalDateTime updatedAt;
     private final int viewCount;
     private final int likeCount;

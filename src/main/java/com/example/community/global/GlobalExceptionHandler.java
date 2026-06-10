@@ -3,12 +3,14 @@ package com.example.community.global;
 import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.global.exception.ForbiddenException;
+import com.example.community.global.exception.CommentNotFoundException;
 import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +27,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResponseWrapper.error(400, getValidationErrorMessage(e), "BAD_REQUEST"));
+    }
+
+    // 400 - 요청 Body 누락
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException e) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseWrapper.error(400, "missing field", "BAD_REQUEST"));
     }
 
     //401 - 인증 실패
@@ -54,6 +65,14 @@ public class GlobalExceptionHandler {
     //404 - Post 조회 실패
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<ResponseWrapper<?>> handlePostNotFound(PostNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
+    }
+
+    //404 - Comment 조회 실패
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handleCommentNotFound(CommentNotFoundException e) {
 
         return ResponseEntity.status(404)
                 .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));

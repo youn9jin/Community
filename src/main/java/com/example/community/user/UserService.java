@@ -69,7 +69,8 @@ public class UserService {
         return new UserInfoResponseDTO(
                 user.getUserId(),
                 user.getEmail(),
-                user.getNickname()
+                user.getNickname(),
+                null
         );
     }
 
@@ -96,7 +97,8 @@ public class UserService {
         return new UserInfoResponseDTO(
                 user.getUserId(),
                 user.getEmail(),
-                user.getNickname()
+                user.getNickname(),
+                null
         );
     }
 
