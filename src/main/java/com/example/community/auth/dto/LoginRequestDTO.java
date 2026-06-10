@@ -1,7 +1,7 @@
 package com.example.community.auth.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 public class LoginRequestDTO {
 
     @Email
-    @NotEmpty
+    @NotBlank
     private final String email;
 
-    @NotEmpty
+    @NotBlank
     private final String password;
 }
