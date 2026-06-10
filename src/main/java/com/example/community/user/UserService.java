@@ -61,6 +61,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
+        if (user.getDeletedAt() != null) {
+            throw new UserNotFoundException(userId);
+        }
+
         //user DTO로 변환
         return new UserInfoResponseDTO(
                 user.getUserId(),
@@ -74,6 +78,10 @@ public class UserService {
     public UserInfoResponseDTO updateUserInfo(Integer userId, UpdateUserRequestDTO request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (user.getDeletedAt() != null) {
+            throw new UserNotFoundException(userId);
+        }
 
         if (request.getNickname() != null
                 && !request.getNickname().equals(user.getNickname())
@@ -106,6 +114,20 @@ public class UserService {
         if(userRepository.existsByNickname(nickname)){
             throw new DuplicateNicknameException();
         }
+    }
+
+    //회원 탈퇴 메서드
+    @Transactional
+    public void deleteUser(Integer userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        //이미 탈퇴된 유저 처리
+        if(user.getDeletedAt() != null){
+            throw new UserNotFoundException(userId);
+        }
+
+        user.softDelete();
     }
 
 }

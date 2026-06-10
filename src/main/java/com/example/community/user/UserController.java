@@ -67,4 +67,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("does not have same nickname", null));
     }
+
+    //회원 탈퇴 controller
+    @PreAuthorize("#userId == #loginUserId")
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal Integer loginUserId) {
+
+        userService.deleteUser(userId);
+
+        return ResponseEntity.noContent().build(); //204 응답
+    }
 }
