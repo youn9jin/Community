@@ -1,13 +1,12 @@
 package com.example.community.user;
 
+import com.example.community.auth.RefreshTokenRepository;
 import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.global.exception.UserNotFoundException;
-import com.example.community.user.dto.SignUpRequestDTO;
-import com.example.community.user.dto.SignUpResponseDTO;
-import com.example.community.user.dto.UpdateUserRequestDTO;
-import com.example.community.user.dto.UserInfoResponseDTO;
+import com.example.community.user.dto.*;
 import lombok.RequiredArgsConstructor;
+import com.example.community.global.exception.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     //회원가입 로직
@@ -91,7 +91,7 @@ public class UserService {
         }
 
         if (request.getNickname() != null) {
-            user.update(request.getNickname(), user.getPassword());
+            user.updateNickname(request.getNickname());
         }
 
         return new UserInfoResponseDTO(
@@ -131,5 +131,36 @@ public class UserService {
 
         user.softDelete();
     }
+
+    @Transactional
+    public void changePassword(Integer userId, PasswordChangeRequestDTO request) {
+
+        //1. 유저 존재 여부 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // 2. 탈퇴한 사용자의 비밀번호 변경 차단
+        if (user.getDeletedAt() != null) {
+            throw new UserNotFoundException(userId);
+        }
+
+        // 3. 현재 비밀번호 일치 여부 확인
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException();
+        }
+
+        // 4. 새 비밀번호가 기존 비밀번호와 동일한지 검증
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException();
+        }
+
+        // 5. 새 비밀번호 수정 및 저장
+        user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // 6. 해당 유저의 모든 리프레시 토큰 폐기 (기존 세션 무효화)
+        refreshTokenRepository.deleteByUser(user);
+
+    }
+
 
 }

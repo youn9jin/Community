@@ -1,7 +1,7 @@
 package com.example.community.user.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +10,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SignUpRequestDTO {
 
-    @NotEmpty
+    @NotBlank
     @Email
     private final String email;
 
-    @NotEmpty
+    @NotBlank
     @Size(min = 3, max = 25)
     private final String nickname;
 
-    @NotEmpty
+    @NotBlank
     private final String password;
 }

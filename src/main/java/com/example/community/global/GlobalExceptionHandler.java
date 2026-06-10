@@ -8,6 +8,7 @@ import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import com.example.community.global.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -36,6 +37,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResponseWrapper.error(400, "missing field", "BAD_REQUEST"));
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleBadRequest(BadRequestException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ResponseWrapper.error(400, e.getMessage(), "BAD_REQUEST"));
     }
 
     //401 - 인증 실패
