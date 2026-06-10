@@ -1,10 +1,7 @@
 package com.example.community.user;
 
 import com.example.community.global.ResponseWrapper;
-import com.example.community.user.dto.SignUpRequestDTO;
-import com.example.community.user.dto.SignUpResponseDTO;
-import com.example.community.user.dto.UpdateUserRequestDTO;
-import com.example.community.user.dto.UserInfoResponseDTO;
+import com.example.community.user.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -77,6 +74,17 @@ public class UserController {
 
         userService.deleteUser(userId);
 
+        return ResponseEntity.noContent().build(); //204 응답
+    }
+
+    @PreAuthorize("#userId == #loginUserId")
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal Integer loginUserId,
+            @Valid @RequestBody PasswordChangeRequestDTO request){
+
+        userService.changePassword(userId, request);
         return ResponseEntity.noContent().build(); //204 응답
     }
 }

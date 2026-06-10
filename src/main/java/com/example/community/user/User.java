@@ -40,10 +40,14 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    // 회원 정보 수정 메서드
-    public void update(String nickname, String password) {
+    // 회원 정보(닉네임) 수정 메서드
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
-        this.password = password;
+    }
+
+    //회원 비밀번호 수정 메서드
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
     // 회원 탈퇴를 위한 soft delete 메서드
