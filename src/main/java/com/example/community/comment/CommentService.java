@@ -51,9 +51,13 @@ public class CommentService {
 
     //2. 댓글 수정
     @Transactional
-    public CommentUpdateResponseDTO updateComment(Integer commentId, Integer userId, CommentRequestDTO request){
+    public CommentUpdateResponseDTO updateComment(Integer postId, Integer commentId, Integer userId, CommentRequestDTO request){
         Comment comment = repository.findActiveCommentById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
+
+        if (!comment.getPost().getPostId().equals(postId)) { // postId와 댓글의 실제 게시글이 같은지 검사
+            throw new CommentNotFoundException(commentId);
+        }
 
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new ForbiddenException();
@@ -68,9 +72,13 @@ public class CommentService {
 
     //3. 댓글 삭제
     @Transactional
-    public void deleteComment(Integer commentId, Integer userId){
+    public void deleteComment(Integer postId, Integer commentId, Integer userId){
         Comment comment = repository.findActiveCommentById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
+
+        if (!comment.getPost().getPostId().equals(postId)) { // postId와 댓글의 실제 게시글이 같은지 검사
+            throw new CommentNotFoundException(commentId);
+        }
 
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new ForbiddenException();

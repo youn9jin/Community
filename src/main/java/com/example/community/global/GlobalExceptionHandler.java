@@ -10,6 +10,7 @@ import com.example.community.global.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResponseWrapper.error(400, getValidationErrorMessage(e), "BAD_REQUEST"));
+    }
+
+    // 400 - 요청 Body 누락
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException e) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseWrapper.error(400, "missing field", "BAD_REQUEST"));
     }
 
     //401 - 인증 실패
