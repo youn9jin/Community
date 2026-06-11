@@ -4,6 +4,7 @@ import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.global.exception.ForbiddenException;
 import com.example.community.global.exception.CommentNotFoundException;
+import com.example.community.global.exception.LikesNotFoundException;
 import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
@@ -81,6 +82,14 @@ public class GlobalExceptionHandler {
     //404 - Comment 조회 실패
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<ResponseWrapper<?>> handleCommentNotFound(CommentNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
+    }
+
+    //404 - Likes 조회 실패
+    @ExceptionHandler(LikesNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handleLikesNotFound(LikesNotFoundException e) {
 
         return ResponseEntity.status(404)
                 .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
