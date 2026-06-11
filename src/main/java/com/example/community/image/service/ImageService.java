@@ -1,4 +1,4 @@
-package com.example.community.image;
+package com.example.community.image.service;
 
 public class ImageService {
 }

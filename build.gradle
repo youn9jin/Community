@@ -26,6 +26,9 @@ dependencies {
 	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	implementation 'net.coobird:thumbnailator:0.4.20' // JPG 압축
+	implementation 'org.sejda.imageio:webp-imageio:0.1.6'   // WebP 읽기/쓰기
+
 
 
 	compileOnly 'org.projectlombok:lombok'

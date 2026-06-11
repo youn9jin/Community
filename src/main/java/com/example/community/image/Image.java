@@ -27,24 +27,40 @@ public class Image {
     @Column(unique = true, length = 500)
     private String storagePath;
 
-    @Column(unique = true, length = 500)
+    @Column(length = 500)
     private String thumbnailPath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Builder
-    public Image(boolean active, String storagePath, String thumbnailPath, Post post, User user) {
-        this.active = active;
-        this.createdAt = LocalDateTime.now();
-        this.storagePath = storagePath;
-        this.thumbnailPath = thumbnailPath;
+    // 업로드 직후 고아 상태로 생성
+    public static Image createOrphan(String storagePath, String thumbnailPath) {
+        Image image = new Image();
+        image.active = false;
+        image.createdAt = LocalDateTime.now();
+        image.storagePath = storagePath;
+        image.thumbnailPath = thumbnailPath;
+        return image;
+    }
+
+    // 게시글에 연결
+    public void attachToPost(Post post) {
         this.post = post;
+        this.active = true;
+    }
+
+    // 프로필에 연결
+    public void attachToUser(User user) {
         this.user = user;
+        this.active = true;
+    }
+
+    public void deactivate() {
+        this.active = false;
     }
 }
