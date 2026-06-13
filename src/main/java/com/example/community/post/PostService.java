@@ -2,9 +2,13 @@ package com.example.community.post;
 
 import com.example.community.comment.CommentRepository;
 import com.example.community.comment.dto.CommentResponseDTO;
+import com.example.community.global.exception.BadRequestException;
 import com.example.community.global.exception.ForbiddenException;
+import com.example.community.global.exception.ImageNotFoundException;
 import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
+import com.example.community.image.Image;
+import com.example.community.image.ImageRepository;
 import com.example.community.likes.LikesRepository;
 import com.example.community.post.dto.PostDetailResponseDTO;
 import com.example.community.post.dto.PostListResposneDTO;
@@ -29,6 +33,7 @@ public class PostService {
     private final LikesRepository likesRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
     //1. 게시글 목록 조회
     @Transactional(readOnly = true)
@@ -56,6 +61,11 @@ public class PostService {
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
+        List<String> imageUrls = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
+                .stream()
+                .map(image -> image.getStoragePath())
+                .toList();
+
         return new PostDetailResponseDTO(
                 post.getPostId(),
                 post.getTitle(),
@@ -69,6 +79,7 @@ public class PostService {
                 post.getViewCount(),
                 (int) likesRepository.countByIdPostId(post.getPostId()),
                 post.getContent(),
+                imageUrls,
                 getCommentResponses(post.getPostId())
         );
     }
@@ -102,6 +113,18 @@ public class PostService {
         );
 
         Post savedPost = repository.save(post);
+
+        if(request.getImageId() != null){
+            Image image = imageRepository.findById(request.getImageId())
+                    .orElseThrow(() -> new ImageNotFoundException("Image not found."));
+            if (!image.getUploadedBy().getUserId().equals(userId)) {
+                throw new ForbiddenException("You are not authorized to use this image.");
+            }
+            if (image.isActive()) {
+                throw new BadRequestException("Image is already in use.");
+            }
+            image.attachToPost(post);
+        }
 
         return new PostResponseDTO(
                 savedPost.getPostId(),
