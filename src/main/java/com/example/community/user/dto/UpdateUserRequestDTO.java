@@ -10,5 +10,6 @@ public class UpdateUserRequestDTO {
 
     @Size(min = 3, max = 25)
     private final String nickname;
+    private final Integer imageId;
 
 }

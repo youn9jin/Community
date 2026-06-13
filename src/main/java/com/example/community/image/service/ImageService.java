@@ -35,6 +35,28 @@ public class ImageService {
         return upload(file, ImageType.PROFILE, loginUserId);
     }
 
+    public Image processAndSaveProfileImage(MultipartFile file, User uploader) {
+        validateFile(file);
+        ImageProcessor.ProcessedFiles processedFiles = processor.processImage(file, ImageType.PROFILE);
+        try {
+            String originalFilename = file.getOriginalFilename() != null
+                    ? file.getOriginalFilename() : "unknown";
+            String baseName = stripExtension(originalFilename);
+            String jpgPath = fileService.uploadFile(processedFiles.getJpgFile(), baseName + ".jpg");
+            String webpPath = processedFiles.getWebpFile() != null
+                    ? fileService.uploadFile(processedFiles.getWebpFile(), baseName + ".webp")
+                    : null;
+            Image image = Image.createOrphan(jpgPath, webpPath, uploader);
+            image.attachToUser(uploader);
+            return repository.save(image);
+        } finally {
+            processedFiles.getJpgFile().delete();
+            if (processedFiles.getWebpFile() != null) {
+                processedFiles.getWebpFile().delete();
+            }
+        }
+    }
+
     @Transactional
     public void deleteImage(Integer imageId, Integer loginUserId) {
         Image image = repository.findById(imageId)

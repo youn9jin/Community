@@ -1,15 +1,21 @@
 package com.example.community.user;
 
 import com.example.community.auth.RefreshTokenRepository;
+import com.example.community.global.exception.BadRequestException;
 import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
+import com.example.community.global.exception.ForbiddenException;
+import com.example.community.global.exception.ImageNotFoundException;
 import com.example.community.global.exception.UserNotFoundException;
+import com.example.community.image.Image;
+import com.example.community.image.ImageRepository;
+import com.example.community.image.service.ImageService;
 import com.example.community.user.dto.*;
 import lombok.RequiredArgsConstructor;
-import com.example.community.global.exception.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -17,11 +23,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ImageRepository imageRepository;
+    private final ImageService imageService;
 
 
     //회원가입 로직
     @Transactional
-    public SignUpResponseDTO signUp(SignUpRequestDTO request) {
+    public SignUpResponseDTO signUp(SignUpRequestDTO request, MultipartFile file) {
 
         //1. 이메일 중복 체크
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -44,12 +52,19 @@ public class UserService {
         // 4. DB 저장
         User savedUser = userRepository.save(user);
 
+        String profileImgUrl = null;
+        if (file != null && !file.isEmpty()) {
+            Image image = imageService.processAndSaveProfileImage(file, savedUser);
+            profileImgUrl = image.getStoragePath();
+        }
+
         // 5. ResponseDTO 구성 및 반환
         return new SignUpResponseDTO(
                 savedUser.getUserId(),
                 savedUser.getEmail(),
                 savedUser.getNickname(),
-                savedUser.getStatus()
+                savedUser.getStatus(),
+                profileImgUrl
         );
     }
 
@@ -65,12 +80,16 @@ public class UserService {
             throw new UserNotFoundException(userId);
         }
 
+        String profileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(userId)
+                .map(image -> image.getStoragePath())
+                .orElse(null);
+
         //user DTO로 변환
         return new UserInfoResponseDTO(
                 user.getUserId(),
                 user.getEmail(),
                 user.getNickname(),
-                null
+                profileImgUrl
         );
     }
 
@@ -94,11 +113,29 @@ public class UserService {
             user.updateNickname(request.getNickname());
         }
 
+        if (request.getImageId() != null) {
+            imageRepository.findByUserUserIdAndActiveTrue(userId)
+                    .ifPresent(existing -> existing.deactivate());
+            Image image = imageRepository.findById(request.getImageId())
+                    .orElseThrow(() -> new ImageNotFoundException("Image not found."));
+            if (!image.getUploadedBy().getUserId().equals(userId)) {
+                throw new ForbiddenException("You are not authorized to use this image.");
+            }
+            if (image.isActive()) {
+                throw new BadRequestException("Image is already in use.");
+            }
+            image.attachToUser(user);
+        }
+
+        String profileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(userId)
+                .map(image -> image.getStoragePath())
+                .orElse(null);
+
         return new UserInfoResponseDTO(
                 user.getUserId(),
                 user.getEmail(),
                 user.getNickname(),
-                null
+                profileImgUrl
         );
     }
 
@@ -161,6 +198,5 @@ public class UserService {
         refreshTokenRepository.deleteByUser(user);
 
     }
-
 
 }

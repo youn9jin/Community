@@ -11,4 +11,5 @@ public class SignUpResponseDTO {
     private final String email;
     private final String nickname;
     private final UserStatus status;
+    private final String profileImgUrl;
 }
