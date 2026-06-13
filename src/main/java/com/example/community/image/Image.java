@@ -38,15 +38,21 @@ public class Image {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploaded_by", nullable = false)
+    private User uploadedBy;
+
     // 업로드 직후 고아 상태로 생성
-    public static Image createOrphan(String storagePath, String thumbnailPath) {
+    public static Image createOrphan(String storagePath, String thumbnailPath, User uploadedBy) {
         Image image = new Image();
         image.active = false;
         image.createdAt = LocalDateTime.now();
         image.storagePath = storagePath;
         image.thumbnailPath = thumbnailPath;
+        image.uploadedBy = uploadedBy;
         return image;
     }
+
 
     // 게시글에 연결
     public void attachToPost(Post post) {

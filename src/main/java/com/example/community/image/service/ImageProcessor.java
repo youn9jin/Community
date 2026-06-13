@@ -22,12 +22,13 @@ import com.example.community.global.exception.BadRequestException;
 @Component
 public class ImageProcessor {
 
+    private static final int PROFILE_THUMBNAIL_WIDTH = 150; // 헤더 프로필 표시용
 
     //DTO 역할, 데이터 운반 객체
     public static class ProcessedFiles {
 
         private final File jpgFile;
-        private final File webpFile;
+        private final File webpFile; // POST는 null
 
         public ProcessedFiles(File jpg, File webp) {
             this.jpgFile = jpg;
@@ -45,7 +46,7 @@ public class ImageProcessor {
 
             // 2. null 체크
             if (inputImage == null) {
-                throw new BadRequestException();
+                throw new BadRequestException("invalid image file");
             }
 
             // 3. 타입별 압축률 결정
@@ -53,12 +54,16 @@ public class ImageProcessor {
 
             // 4. 변환
             File jpgFile  = compressToJPG(inputImage, quality);
-            File webpFile = convertToWebP(inputImage, quality);
+
+            // POST는 썸네일 없음 → null
+            File webpFile = (type == ImageType.PROFILE)
+                    ? convertToThumbnailWebP(inputImage, quality)
+                    : null;
 
             return new ProcessedFiles(jpgFile, webpFile);
 
         } catch (IOException e) {
-            throw new ImageProcessingException("이미지 변환 실패", e);
+            throw new ImageProcessingException("image transition failed", e);
         }
     }
 
@@ -84,7 +89,16 @@ public class ImageProcessor {
         return tempFile;
     }
 
-    private File convertToWebP(BufferedImage image, float quality) throws IOException {
+    // PROFILE 전용: 150px 리사이즈 + WebP 변환
+    private File convertToThumbnailWebP(BufferedImage image, float quality) throws IOException {
+        BufferedImage resized = Thumbnails.of(image)
+                .width(PROFILE_THUMBNAIL_WIDTH)
+                .keepAspectRatio(true)
+                .asBufferedImage();
+        return writeWebP(resized, quality);
+    }
+
+    private File writeWebP(BufferedImage image, float quality) throws IOException {
 
         File tempFile = File.createTempFile("img_", ".webp");
 

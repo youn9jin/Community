@@ -146,12 +146,12 @@ public class UserService {
 
         // 3. 현재 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new BadRequestException();
+            throw new BadRequestException("current password does not match");
         }
 
         // 4. 새 비밀번호가 기존 비밀번호와 동일한지 검증
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new BadRequestException();
+            throw new BadRequestException("new password must be different");
         }
 
         // 5. 새 비밀번호 수정 및 저장

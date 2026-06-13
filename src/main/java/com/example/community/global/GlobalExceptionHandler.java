@@ -10,6 +10,7 @@ import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
 import com.example.community.global.exception.ImageProcessingException;
+import com.example.community.global.exception.ImageNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import com.example.community.global.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -92,6 +93,14 @@ public class GlobalExceptionHandler {
     //404 - Likes 조회 실패
     @ExceptionHandler(LikesNotFoundException.class)
     public ResponseEntity<ResponseWrapper<?>> handleLikesNotFound(LikesNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
+    }
+
+    //404 - Image 조회 실패
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handleImageNotFound(ImageNotFoundException e) {
 
         return ResponseEntity.status(404)
                 .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
