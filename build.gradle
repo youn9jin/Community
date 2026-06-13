@@ -27,7 +27,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'net.coobird:thumbnailator:0.4.20' // JPG 압축
-	implementation 'org.sejda.imageio:webp-imageio:0.1.6'   // WebP 읽기/쓰기
+	implementation 'com.sksamuel.scrimage:scrimage-core:4.1.3'
+	implementation 'com.sksamuel.scrimage:scrimage-webp:4.1.3'
 
 
 

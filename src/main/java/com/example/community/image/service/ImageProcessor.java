@@ -3,16 +3,13 @@ package com.example.community.image.service;
 
 import com.example.community.global.exception.ImageProcessingException;
 import com.example.community.image.ImageType;
-import com.luciad.imageio.webp.WebPWriteParam; //WebP 변환용 라이브러리
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.webp.WebpWriter;
 import net.coobird.thumbnailator.Thumbnails; // 이미지 리사이즈/압축용 라이브러리
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -95,35 +92,17 @@ public class ImageProcessor {
                 .width(PROFILE_THUMBNAIL_WIDTH)
                 .keepAspectRatio(true)
                 .asBufferedImage();
-        return writeWebP(resized, quality);
+        try {
+            return writeWebP(resized);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
-    private File writeWebP(BufferedImage image, float quality) throws IOException {
-
-        File tempFile = File.createTempFile("img_", ".webp");
-
-        // 1. webp-imageio의 writer 가져오기
-        ImageWriter writer = ImageIO.getImageWritersByMIMEType("image/webp").next();
-
-        // 2. WebP 저장 옵션 객체 생성
-        WebPWriteParam writeParam = new WebPWriteParam(writer.getLocale());
-
-        // 3. 압축 설정 지정
-        writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT); // ③
-        writeParam.setCompressionType(
-                writeParam.getCompressionTypes()[WebPWriteParam.LOSSY_COMPRESSION] // ④
-        );
-
-        writeParam.setCompressionQuality(quality);
-
-        // ⑤ try-with-resources로 스트림 자동 닫기
-        try (FileImageOutputStream output = new FileImageOutputStream(tempFile)) {
-            writer.setOutput(output);
-            writer.write(null, new IIOImage(image, null, null), writeParam);
-        } finally {
-            writer.dispose();
-        }
-
-        return tempFile;
+    private File writeWebP(BufferedImage image) throws Exception {
+        File output = File.createTempFile("webp_", ".webp");
+        ImmutableImage.fromAwt(image)
+                .output(WebpWriter.DEFAULT, output);
+        return output;
     }
 }
