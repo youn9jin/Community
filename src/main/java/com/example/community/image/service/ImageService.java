@@ -67,11 +67,12 @@ public class ImageService {
             String originalFilename = file.getOriginalFilename() != null
                     ? file.getOriginalFilename()
                     : "unknown";
+            String baseName = stripExtension(originalFilename);
 
             String jpgPath  = fileService.uploadFile(
-                    processedFiles.getJpgFile(), originalFilename);
+                    processedFiles.getJpgFile(), baseName + ".jpg");
             String webpPath = processedFiles.getWebpFile() != null
-                    ? fileService.uploadFile(processedFiles.getWebpFile(), originalFilename)
+                    ? fileService.uploadFile(processedFiles.getWebpFile(), baseName + ".webp")
                     : null;
 
             // 4. uploadedBy 조회
@@ -116,5 +117,10 @@ public class ImageService {
         return contentType.equals("image/jpeg") ||
                 contentType.equals("image/png")  ||
                 contentType.equals("image/webp");
+    }
+
+    private String stripExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        return dotIndex > 0 ? filename.substring(0, dotIndex) : filename;
     }
 }
