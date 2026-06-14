@@ -19,6 +19,6 @@ public class PostDetailResponseDTO {
     private final int viewCount;
     private final int likeCount;
     private final String content;
-    private final List<String> imageUrls;
+    private final String imageUrl;
     private final List<CommentResponseDTO> comments;
 }

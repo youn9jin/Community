@@ -61,10 +61,9 @@ public class PostService {
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
-        List<String> imageUrls = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
-                .stream()
-                .map(image -> image.getStoragePath())
-                .toList();
+        String imageUrl = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
+                .map(Image::getStoragePath)
+                .orElse(null);
 
         return new PostDetailResponseDTO(
                 post.getPostId(),
@@ -79,7 +78,7 @@ public class PostService {
                 post.getViewCount(),
                 (int) likesRepository.countByIdPostId(post.getPostId()),
                 post.getContent(),
-                imageUrls,
+                imageUrl,
                 getCommentResponses(post.getPostId())
         );
     }
@@ -152,6 +151,20 @@ public class PostService {
 
         post.update(request.getTitle(), request.getContent());
 
+        if (request.getImageId() != null) {
+            imageRepository.findByPostPostIdAndActiveTrue(postId)
+                    .ifPresent(img -> img.deactivate());
+            Image image = imageRepository.findById(request.getImageId())
+                    .orElseThrow(() -> new ImageNotFoundException("Image not found."));
+            if (!image.getUploadedBy().getUserId().equals(userId)) {
+                throw new ForbiddenException("You are not authorized to use this image.");
+            }
+            if (image.isActive()) {
+                throw new BadRequestException("Image is already in use.");
+            }
+            image.attachToPost(post);
+        }
+
         return new PostResponseDTO(
                 post.getPostId(),
                 post.getTitle(),
@@ -175,6 +188,9 @@ public class PostService {
         if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException("don't have rights to delete");
         }
+
+        imageRepository.findByPostPostIdAndActiveTrue(postId)
+                .ifPresent(img -> img.deactivate());
 
         post.softDelete();
     }

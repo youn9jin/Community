@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ImageRepository extends JpaRepository<Image, Integer> {
 
     // 게시글의 활성 이미지 조회
-    List<Image> findByPostPostIdAndActiveTrue(Integer postId);
+    Optional<Image> findByPostPostIdAndActiveTrue(Integer postId);
 
     // 유저의 활성 프로필 이미지 조회 (user.userId 경로로 탐색)
     Optional<Image> findByUserUserIdAndActiveTrue(Integer userId);
