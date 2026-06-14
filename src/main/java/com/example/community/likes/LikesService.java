@@ -42,11 +42,9 @@ public class LikesService {
                 .build();
 
         likesRepository.save(likes);
+        post.incrementLikeCount();
 
-        // 조회 수 측정
-        long likeCount = likesRepository.countByIdPostId(postId);
-
-        return new LikesResponseDTO(post.getPostId(), likeCount);
+        return new LikesResponseDTO(post.getPostId(), post.getLikeCount());
     }
 
     @Transactional
@@ -61,5 +59,6 @@ public class LikesService {
         }
 
         likesRepository.deleteById(likesId);
+        post.decrementLikeCount();
     }
 }
