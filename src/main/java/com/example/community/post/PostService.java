@@ -232,9 +232,13 @@ public class PostService {
 
         post.update(request.getTitle(), request.getContent());
 
-        if (request.getImageId() != null) {
+        if (request.isRemoveImage() || request.getImageId() != null) {
             imageRepository.findByPostPostIdAndActiveTrue(postId)
-                    .ifPresent(img -> img.deactivate());
+                    .ifPresent(img -> img.detachFromPost());
+            imageRepository.flush();
+        }
+
+        if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ImageNotFoundException("Image not found."));
             if (!image.getUploadedBy().getUserId().equals(userId)) {
