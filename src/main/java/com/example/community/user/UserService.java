@@ -115,9 +115,13 @@ public class UserService {
             user.updateNickname(request.getNickname());
         }
 
+        if (request.isRemoveImage() || request.getImageId() != null) {
+            imageRepository.findByUserUserId(userId)
+                    .ifPresent(existing -> existing.detachFromUser());
+            imageRepository.flush();
+        }
+
         if (request.getImageId() != null) {
-            imageRepository.findByUserUserIdAndActiveTrue(userId)
-                    .ifPresent(existing -> existing.deactivate());
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ImageNotFoundException("Image not found."));
             if (!image.getUploadedBy().getUserId().equals(userId)) {

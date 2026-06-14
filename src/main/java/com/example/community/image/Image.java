@@ -74,4 +74,9 @@ public class Image {
         this.active = false;
         this.post = null;
     }
+
+    public void detachFromUser() {
+        this.active = false;
+        this.user = null;
+    }
 }
