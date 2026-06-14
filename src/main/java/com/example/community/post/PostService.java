@@ -10,6 +10,7 @@ import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.image.Image;
 import com.example.community.image.ImageRepository;
+import com.example.community.image.ImageUrlUtils;
 import com.example.community.likes.LikesRepository;
 import com.example.community.post.dto.PostDetailResponseDTO;
 import com.example.community.post.dto.PostListResposneDTO;
@@ -24,12 +25,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +81,7 @@ public class PostService {
                                 post.getUser().getUserId(),
                                 post.getUser().getNickname(),
                                 // 미리 만든 Map에서 작성자 프로필 썸네일 조회
-                                profileImageMap.get(post.getUser().getUserId())
+                                toPublicImageUrl(profileImageMap.get(post.getUser().getUserId()))
                         ),
                         post.getUpdatedAt(),
                         post.getViewCount(), // 조회 수
@@ -95,9 +99,11 @@ public class PostService {
 
         String imageUrl = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
                 .map(Image::getStoragePath)
+                .map(this::toPublicImageUrl)
                 .orElse(null);
         String writerProfileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(post.getUser().getUserId())
                 .map(Image::getThumbnailPath)
+                .map(this::toPublicImageUrl)
                 .orElse(null);
 
         // 댓글과 댓글 작성자를 함께 조회
@@ -111,6 +117,9 @@ public class PostService {
 
         // 댓글 작성자 userId -> thumbnailPath
         Map<Integer, String> commentProfileImageMap = getProfileImageMap(commentUserIds);
+        boolean isLiked = getCurrentUserId()
+                .map(userId -> likesRepository.existsByIdPostIdAndIdUserId(post.getPostId(), userId))
+                .orElse(false);
 
         return new PostDetailResponseDTO(
                 post.getPostId(),
@@ -126,8 +135,17 @@ public class PostService {
                 post.getLikeCount(),
                 post.getContent(),
                 imageUrl,
-                getCommentResponses(comments, commentProfileImageMap)
+                getCommentResponses(comments, commentProfileImageMap),
+                isLiked
         );
+    }
+
+    private Optional<Integer> getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof Integer userId)) {
+            return Optional.empty();
+        }
+        return Optional.of(userId);
     }
 
     private List<CommentResponseDTO> getCommentResponses(List<Comment> comments, Map<Integer, String> profileImageMap) {
@@ -139,7 +157,7 @@ public class PostService {
                                 comment.getUser().getUserId(),
                                 comment.getUser().getNickname(),
                                 // 미리 만든 Map에서 댓글 작성자 프로필 썸네일 조회
-                                profileImageMap.get(comment.getUser().getUserId())
+                                toPublicImageUrl(profileImageMap.get(comment.getUser().getUserId()))
                         ),
                         comment.getCreatedAt(),
                         comment.getContent()
@@ -163,6 +181,10 @@ public class PostService {
                         // 같은 userId에 이미지가 여러 개 나오면 먼저 조회된 값을 유지
                         (first, second) -> first
                 ));
+    }
+
+    private String toPublicImageUrl(String storagePath) {
+        return ImageUrlUtils.toPublicUrl(storagePath);
     }
 
     //3. 게시글 작성
@@ -225,9 +247,13 @@ public class PostService {
 
         post.update(request.getTitle(), request.getContent());
 
-        if (request.getImageId() != null) {
+        if (request.isRemoveImage() || request.getImageId() != null) {
             imageRepository.findByPostPostIdAndActiveTrue(postId)
-                    .ifPresent(img -> img.deactivate());
+                    .ifPresent(img -> img.detachFromPost());
+            imageRepository.flush();
+        }
+
+        if (request.getImageId() != null) {
             Image image = imageRepository.findById(request.getImageId())
                     .orElseThrow(() -> new ImageNotFoundException("Image not found."));
             if (!image.getUploadedBy().getUserId().equals(userId)) {

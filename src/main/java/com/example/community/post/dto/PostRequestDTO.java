@@ -13,5 +13,7 @@ public class PostRequestDTO {
     @NotBlank
     private final String content;
 
-    private final Integer imageId; 
+    private final Integer imageId;
+
+    private final boolean removeImage;
 }

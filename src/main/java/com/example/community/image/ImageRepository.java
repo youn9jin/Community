@@ -14,6 +14,8 @@ public interface ImageRepository extends JpaRepository<Image, Integer> {
     // 유저의 활성 프로필 이미지 조회 (user.userId 경로로 탐색)
     Optional<Image> findByUserUserIdAndActiveTrue(Integer userId);
 
+    Optional<Image> findByUserUserId(Integer userId);
+
     // 여러 작성자의 활성 프로필 이미지를 한 번에 조회
     List<Image> findByUserUserIdInAndActiveTrue(List<Integer> userIds);
 
