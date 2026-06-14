@@ -6,6 +6,7 @@ import com.example.community.global.exception.ImageNotFoundException;
 import com.example.community.image.Image;
 import com.example.community.image.ImageRepository;
 import com.example.community.image.ImageType;
+import com.example.community.image.ImageUrlUtils;
 import com.example.community.image.dto.ImageUploadResponseDTO;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
@@ -107,8 +108,8 @@ public class ImageService {
 
             return new ImageUploadResponseDTO(
                     image.getImageId(),
-                    image.getStoragePath(),
-                    image.getThumbnailPath(),
+                    ImageUrlUtils.toPublicUrl(image.getStoragePath()),
+                    ImageUrlUtils.toPublicUrl(image.getThumbnailPath()),
                     image.isActive(),
                     image.getCreatedAt(),
                     image.getUploadedBy().getUserId()

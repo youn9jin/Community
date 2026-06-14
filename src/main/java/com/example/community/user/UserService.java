@@ -9,6 +9,7 @@ import com.example.community.global.exception.ImageNotFoundException;
 import com.example.community.global.exception.UserNotFoundException;
 import com.example.community.image.Image;
 import com.example.community.image.ImageRepository;
+import com.example.community.image.ImageUrlUtils;
 import com.example.community.image.service.ImageService;
 import com.example.community.user.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,7 @@ public class UserService {
         String profileImgUrl = null;
         if (file != null && !file.isEmpty()) {
             Image image = imageService.processAndSaveProfileImage(file, savedUser);
-            profileImgUrl = image.getStoragePath();
+            profileImgUrl = ImageUrlUtils.toPublicUrl(image.getStoragePath());
         }
 
         // 5. ResponseDTO 구성 및 반환
@@ -82,6 +83,7 @@ public class UserService {
 
         String profileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(userId)
                 .map(image -> image.getStoragePath())
+                .map(ImageUrlUtils::toPublicUrl)
                 .orElse(null);
 
         //user DTO로 변환
@@ -129,6 +131,7 @@ public class UserService {
 
         String profileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(userId)
                 .map(image -> image.getStoragePath())
+                .map(ImageUrlUtils::toPublicUrl)
                 .orElse(null);
 
         return new UserInfoResponseDTO(

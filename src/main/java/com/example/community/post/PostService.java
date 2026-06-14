@@ -10,6 +10,7 @@ import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.image.Image;
 import com.example.community.image.ImageRepository;
+import com.example.community.image.ImageUrlUtils;
 import com.example.community.likes.LikesRepository;
 import com.example.community.post.dto.PostDetailResponseDTO;
 import com.example.community.post.dto.PostListResposneDTO;
@@ -77,7 +78,7 @@ public class PostService {
                                 post.getUser().getUserId(),
                                 post.getUser().getNickname(),
                                 // 미리 만든 Map에서 작성자 프로필 썸네일 조회
-                                profileImageMap.get(post.getUser().getUserId())
+                                toPublicImageUrl(profileImageMap.get(post.getUser().getUserId()))
                         ),
                         post.getUpdatedAt(),
                         post.getViewCount(), // 조회 수
@@ -95,9 +96,11 @@ public class PostService {
 
         String imageUrl = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
                 .map(Image::getStoragePath)
+                .map(this::toPublicImageUrl)
                 .orElse(null);
         String writerProfileImgUrl = imageRepository.findByUserUserIdAndActiveTrue(post.getUser().getUserId())
                 .map(Image::getThumbnailPath)
+                .map(this::toPublicImageUrl)
                 .orElse(null);
 
         // 댓글과 댓글 작성자를 함께 조회
@@ -139,7 +142,7 @@ public class PostService {
                                 comment.getUser().getUserId(),
                                 comment.getUser().getNickname(),
                                 // 미리 만든 Map에서 댓글 작성자 프로필 썸네일 조회
-                                profileImageMap.get(comment.getUser().getUserId())
+                                toPublicImageUrl(profileImageMap.get(comment.getUser().getUserId()))
                         ),
                         comment.getCreatedAt(),
                         comment.getContent()
@@ -163,6 +166,10 @@ public class PostService {
                         // 같은 userId에 이미지가 여러 개 나오면 먼저 조회된 값을 유지
                         (first, second) -> first
                 ));
+    }
+
+    private String toPublicImageUrl(String storagePath) {
+        return ImageUrlUtils.toPublicUrl(storagePath);
     }
 
     //3. 게시글 작성
