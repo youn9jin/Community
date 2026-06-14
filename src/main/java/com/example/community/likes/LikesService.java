@@ -8,6 +8,8 @@ import com.example.community.post.Post;
 import com.example.community.post.repository.PostRepository;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
+import com.example.community.user.UserStatus;
+import com.example.community.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,9 @@ public class LikesService {
 
     @Transactional
     public LikesResponseDTO addLike(Integer postId, Integer userId){
+        if (!userRepository.existsByUserIdAndStatus(userId, UserStatus.ACTIVE)) {
+            throw new UnauthorizedException();
+        }
 
         //1. 좋아요 누르려는 게시글 존재여부 검사
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
@@ -33,24 +38,25 @@ public class LikesService {
             throw new BadRequestException("already liked post");
         }
 
-        //3. UserId 조회
-        User user = userRepository.getReferenceById(userId);
+        User userRef = userRepository.getReferenceById(userId);
 
         Likes likes = Likes.builder()
                 .post(post)
-                .user(user)
+                .user(userRef)
                 .build();
 
         likesRepository.save(likes);
+        post.incrementLikeCount();
 
-        // 조회 수 측정
-        long likeCount = likesRepository.countByIdPostId(postId);
-
-        return new LikesResponseDTO(post.getPostId(), likeCount);
+        return new LikesResponseDTO(post.getPostId(), post.getLikeCount());
     }
 
     @Transactional
     public void removeLike(Integer postId, Integer userId){
+        if (!userRepository.existsByUserIdAndStatus(userId, UserStatus.ACTIVE)) {
+            throw new UnauthorizedException();
+        }
+
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(()-> new PostNotFoundException(postId));
 
@@ -61,5 +67,6 @@ public class LikesService {
         }
 
         likesRepository.deleteById(likesId);
+        post.decrementLikeCount();
     }
 }

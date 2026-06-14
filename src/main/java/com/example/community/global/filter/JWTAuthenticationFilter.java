@@ -59,9 +59,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 3. 토큰 있을 시 -> 유효하지 않은 경우 -> 401 에러
+        // 3. 토큰이 유효하지 않아도 공개 API 접근 가능 여부는 SecurityConfig에 맡김
         if (!validateAndSetAuthentication(token.get())) {
-            writeUnauthorizedResponse(response);
+            chain.doFilter(request, response);
             return;
         }
 

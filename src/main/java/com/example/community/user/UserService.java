@@ -167,6 +167,7 @@ public class UserService {
         }
 
         user.softDelete();
+        refreshTokenRepository.deleteByUser(user);
     }
 
     @Transactional

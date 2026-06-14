@@ -18,8 +18,10 @@ import com.example.community.post.dto.PostResponseDTO;
 import com.example.community.post.repository.PostRepository;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
+import com.example.community.user.UserStatus;
 import com.example.community.user.dto.WriterDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     //1. 게시글 목록 조회
     @Transactional(readOnly = true)
@@ -53,6 +56,17 @@ public class PostService {
 
         // userId -> thumbnailPath 형태로 만들어 WriterDTO 생성 시 재사용
         Map<Integer, String> profileImageMap = getProfileImageMap(userIds);
+        List<Integer> postIds = posts.getContent().stream()
+                .map(Post::getPostId)
+                .toList();
+        Map<Integer, Long> commentCountMap = postIds.isEmpty()
+                ? Collections.emptyMap()
+                : commentRepository.countCommentsByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> (Long) row[1]
+                ));
 
         return posts
                 .map(post -> new PostListResposneDTO(
@@ -67,8 +81,8 @@ public class PostService {
                         ),
                         post.getUpdatedAt(),
                         post.getViewCount(), // 조회 수
-                        (int)(likesRepository.countByIdPostId(post.getPostId())), //좋아요 수
-                        commentRepository.findActiveCommentsByPostId(post.getPostId()).size() //댓글 수
+                        post.getLikeCount(), //좋아요 수
+                        commentCountMap.getOrDefault(post.getPostId(), 0L).intValue() //댓글 수
                 ));
     }
 
@@ -77,6 +91,7 @@ public class PostService {
     public PostDetailResponseDTO getPost(Integer postId){
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+        eventPublisher.publishEvent(new PostViewedEvent(postId));
 
         String imageUrl = imageRepository.findByPostPostIdAndActiveTrue(post.getPostId())
                 .map(Image::getStoragePath)
@@ -108,7 +123,7 @@ public class PostService {
                 ),
                 post.getUpdatedAt(),
                 post.getViewCount(),
-                (int) likesRepository.countByIdPostId(post.getPostId()),
+                post.getLikeCount(),
                 post.getContent(),
                 imageUrl,
                 getCommentResponses(comments, commentProfileImageMap)
@@ -156,6 +171,10 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException());
 
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
+
         Post post = new Post(
                 request.getTitle(),
                 request.getContent(),
@@ -196,6 +215,10 @@ public class PostService {
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
+        if (post.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
+
         if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException();
         }
@@ -235,6 +258,10 @@ public class PostService {
     public void deletePost(Integer postId, Integer userId){
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+
+        if (post.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
 
         if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException("don't have rights to delete");
