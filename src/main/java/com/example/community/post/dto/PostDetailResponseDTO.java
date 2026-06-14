@@ -2,6 +2,7 @@ package com.example.community.post.dto;
 
 import com.example.community.comment.dto.CommentResponseDTO;
 import com.example.community.user.dto.WriterDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,4 +22,6 @@ public class PostDetailResponseDTO {
     private final String content;
     private final String imageUrl;
     private final List<CommentResponseDTO> comments;
+    @JsonProperty("isLiked")
+    private final boolean isLiked;
 }

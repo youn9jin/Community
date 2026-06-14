@@ -25,12 +25,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,6 +117,9 @@ public class PostService {
 
         // 댓글 작성자 userId -> thumbnailPath
         Map<Integer, String> commentProfileImageMap = getProfileImageMap(commentUserIds);
+        boolean isLiked = getCurrentUserId()
+                .map(userId -> likesRepository.existsByIdPostIdAndIdUserId(post.getPostId(), userId))
+                .orElse(false);
 
         return new PostDetailResponseDTO(
                 post.getPostId(),
@@ -129,8 +135,17 @@ public class PostService {
                 post.getLikeCount(),
                 post.getContent(),
                 imageUrl,
-                getCommentResponses(comments, commentProfileImageMap)
+                getCommentResponses(comments, commentProfileImageMap),
+                isLiked
         );
+    }
+
+    private Optional<Integer> getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof Integer userId)) {
+            return Optional.empty();
+        }
+        return Optional.of(userId);
     }
 
     private List<CommentResponseDTO> getCommentResponses(List<Comment> comments, Map<Integer, String> profileImageMap) {
