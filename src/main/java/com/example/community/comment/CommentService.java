@@ -11,6 +11,7 @@ import com.example.community.post.Post;
 import com.example.community.post.repository.PostRepository;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
+import com.example.community.user.UserStatus;
 import com.example.community.user.dto.WriterDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class CommentService {
     public CommentResponseDTO createComment(Integer postId, Integer userId, CommentRequestDTO request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException());
+
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
 
         Post post = postRepository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
@@ -59,6 +64,10 @@ public class CommentService {
             throw new CommentNotFoundException(commentId);
         }
 
+        if (comment.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
+
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new ForbiddenException();
         }
@@ -78,6 +87,10 @@ public class CommentService {
 
         if (!comment.getPost().getPostId().equals(postId)) { // postId와 댓글의 실제 게시글이 같은지 검사
             throw new CommentNotFoundException(commentId);
+        }
+
+        if (comment.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
         }
 
         if (!comment.getUser().getUserId().equals(userId)) {

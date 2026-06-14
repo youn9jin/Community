@@ -6,6 +6,7 @@ import com.example.community.global.JwtProvider;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
+import com.example.community.user.UserStatus;
 import com.example.community.user.dto.UserInfoResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,6 +41,10 @@ public class AuthService {
         // 1. 이메일 검증
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException());
+
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
 
         // 2. 비밀번호 검증
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){

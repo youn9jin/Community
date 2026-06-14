@@ -18,6 +18,7 @@ import com.example.community.post.dto.PostResponseDTO;
 import com.example.community.post.repository.PostRepository;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
+import com.example.community.user.UserStatus;
 import com.example.community.user.dto.WriterDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -170,6 +171,10 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException());
 
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
+
         Post post = new Post(
                 request.getTitle(),
                 request.getContent(),
@@ -210,6 +215,10 @@ public class PostService {
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
 
+        if (post.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
+
         if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException();
         }
@@ -249,6 +258,10 @@ public class PostService {
     public void deletePost(Integer postId, Integer userId){
         Post post = repository.findByPostIdAndDeletedAtIsNull(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+
+        if (post.getUser().getStatus() == UserStatus.DELETED) {
+            throw new UnauthorizedException();
+        }
 
         if (!post.getUser().getUserId().equals(userId)) { //게시글 작성자가 아닌 경우 403 에러 처리
             throw new ForbiddenException("don't have rights to delete");
