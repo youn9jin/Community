@@ -4,10 +4,13 @@ import com.example.community.global.exception.DuplicateEmailException;
 import com.example.community.global.exception.DuplicateNicknameException;
 import com.example.community.global.exception.ForbiddenException;
 import com.example.community.global.exception.CommentNotFoundException;
+import com.example.community.global.exception.FileStorageException;
 import com.example.community.global.exception.LikesNotFoundException;
 import com.example.community.global.exception.PostNotFoundException;
 import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
+import com.example.community.global.exception.ImageProcessingException;
+import com.example.community.global.exception.ImageNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import com.example.community.global.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -95,6 +98,14 @@ public class GlobalExceptionHandler {
                 .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
     }
 
+    //404 - Image 조회 실패
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ResponseWrapper<?>> handleImageNotFound(ImageNotFoundException e) {
+
+        return ResponseEntity.status(404)
+                .body(ResponseWrapper.error(404, e.getMessage(), "NOT_FOUND"));
+    }
+
     // 409 - 이메일 중복
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<ResponseWrapper<Void>> handleDuplicateEmail(
@@ -111,6 +122,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ResponseWrapper.error(409, e.getMessage(), "CONFLICT"));
+    }
+
+    // 500 - 이미지 처리 실패
+    @ExceptionHandler(ImageProcessingException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleImageProcessing(ImageProcessingException e) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ResponseWrapper.error(500, e.getMessage(), "INTERNAL_SERVER_ERROR"));
+    }
+
+    // 500 - 파일 저장/삭제 실패
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleFileStorage(FileStorageException e) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ResponseWrapper.error(500, e.getMessage(), "INTERNAL_SERVER_ERROR"));
     }
 
     // 500

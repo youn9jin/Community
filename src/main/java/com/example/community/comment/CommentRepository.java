@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    @Query("SELECT c FROM Comment c WHERE c.post.postId = :postId AND c.deletedAt IS NULL")
+    // 댓글 작성자 정보와 user를 함께 조회 -> N+1문제 방지
+    @Query("SELECT c FROM Comment c JOIN FETCH c.user WHERE c.post.postId = :postId AND c.deletedAt IS NULL")
     List<Comment> findActiveCommentsByPostId(@Param("postId") Integer postId);
 
     @Query("SELECT c FROM Comment c WHERE c.commentId = :commentId AND c.deletedAt IS NULL")

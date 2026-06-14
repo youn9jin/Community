@@ -30,7 +30,7 @@ public class LikesService {
         // 2. 중복 좋아요 검사
         LikesId likesId = new LikesId(postId, userId);
         if (likesRepository.existsById(likesId)) {
-            throw new BadRequestException();
+            throw new BadRequestException("already liked post");
         }
 
         //3. UserId 조회

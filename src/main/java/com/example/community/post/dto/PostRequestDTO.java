@@ -12,4 +12,6 @@ public class PostRequestDTO {
 
     @NotBlank
     private final String content;
+
+    private final Integer imageId; 
 }

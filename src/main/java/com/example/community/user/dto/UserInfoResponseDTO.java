@@ -7,11 +7,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL) //image 구현 전 임시
 public class UserInfoResponseDTO {
     private  final Integer userId;
     private final String email;
     private final String nickname;
-    @JsonProperty("profileImg_url")
     private final String profileImgUrl;
 }

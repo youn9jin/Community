@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,9 +20,10 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<ResponseWrapper<SignUpResponseDTO>> signUp(
-            @Valid @RequestBody SignUpRequestDTO request) {
+            @RequestPart("userData") @Valid SignUpRequestDTO request,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
 
-        SignUpResponseDTO response = userService.signUp(request);
+        SignUpResponseDTO response = userService.signUp(request, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseWrapper.success("registeration success", response));
     }
 
