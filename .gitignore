@@ -39,6 +39,7 @@ out/
 
 
 src/main/resources/application.yml
+application-prod.properties
 .env
 /src/main/generated/
 uploads/
