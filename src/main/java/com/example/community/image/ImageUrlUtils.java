@@ -17,6 +17,13 @@ public final class ImageUrlUtils {
         if (normalized.startsWith("./")) {
             normalized = normalized.substring(2);
         }
+        int uploadsIndex = normalized.indexOf("/uploads/");
+        if (uploadsIndex >= 0) {
+            return normalized.substring(uploadsIndex);
+        }
+        if (normalized.startsWith("uploads/")) {
+            return "/" + normalized;
+        }
         return normalized.startsWith("/") ? normalized : "/" + normalized;
     }
 }

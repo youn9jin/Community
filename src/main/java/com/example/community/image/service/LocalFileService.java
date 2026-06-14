@@ -14,6 +14,8 @@ import java.util.UUID;
 @Service
 public class LocalFileService implements FileService{
 
+    private static final String PUBLIC_UPLOAD_PATH = "/uploads/";
+
     @Value("${file.upload-dir}") //yml에서 경로 주입
     private String uploadDir;
 
@@ -24,14 +26,13 @@ public class LocalFileService implements FileService{
             Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();
             Files.createDirectories(directory);
 
-            //파일명 충돌 방지 -> 같은 파일이 업로드되면 덮어씌워지도록 설계
-            String uniqueFilename = UUID.randomUUID() + "_" + filename;
-            Path targetPath = directory.resolve(uniqueFilename);
+            String storedFileName = UUID.randomUUID() + getExtension(filename);
+            Path targetPath = directory.resolve(storedFileName);
 
             //파일 저장
             Files.copy(file.toPath(), targetPath);
 
-            return uploadDir + "/" + uniqueFilename;
+            return PUBLIC_UPLOAD_PATH + storedFileName;
         } catch (IOException e){
             throw new FileStorageException("파일 저장 실패", e);
         }
@@ -40,10 +41,35 @@ public class LocalFileService implements FileService{
     @Override
     public void deleteFile(String storagePath){
         try{
-            Path filePath = Paths.get(storagePath).toAbsolutePath().normalize();
+            Path filePath = resolveStoragePath(storagePath);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
             throw new FileStorageException("파일 삭제 실패", e);
         }
+    }
+
+    private Path resolveStoragePath(String storagePath) {
+        String normalized = storagePath.replace('\\', '/');
+        if (normalized.startsWith(PUBLIC_UPLOAD_PATH)) {
+            Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path relativePath = Paths.get(normalized.substring(PUBLIC_UPLOAD_PATH.length())).normalize();
+            Path filePath = directory.resolve(relativePath).normalize();
+            if (!filePath.startsWith(directory)) {
+                throw new FileStorageException("잘못된 파일 경로입니다.", new SecurityException(storagePath));
+            }
+            return filePath;
+        }
+        if (normalized.startsWith("uploads/")) {
+            return resolveStoragePath("/" + normalized);
+        }
+        return Paths.get(storagePath).toAbsolutePath().normalize();
+    }
+
+    private String getExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex < 0 || dotIndex == filename.length() - 1) {
+            return "";
+        }
+        return filename.substring(dotIndex).toLowerCase();
     }
 }
