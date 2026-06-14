@@ -2,6 +2,7 @@ package com.example.community.post.repository;
 
 import com.example.community.post.Post;
 import com.example.community.post.QPost;
+import com.example.community.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,8 @@ import java.util.List;
 
         List<Post> content = queryFactory
                 .selectFrom(QPost.post)
+                // Post.user는 ManyToOne이므로 작성자까지 함께 조회
+                .leftJoin(QPost.post.user, QUser.user).fetchJoin()
                 .where(QPost.post.postId.in(ids)) // 앞에서 페이징 처리한 postId 목록에 해당하는 게시글만 조회
                 .orderBy(QPost.post.createdAt.desc())
                 .fetch();
