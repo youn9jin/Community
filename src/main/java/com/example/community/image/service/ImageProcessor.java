@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -39,7 +40,15 @@ public class ImageProcessor {
     public ProcessedFiles processImage(MultipartFile file, ImageType type) {
         try {
             // 1. 스트림에서 BufferedImage로 디코딩
-            BufferedImage inputImage = ImageIO.read(file.getInputStream());
+            byte[] bytes = file.getBytes();
+            BufferedImage inputImage = ImageIO.read(new ByteArrayInputStream(bytes));
+            if (inputImage == null) {
+                try {
+                    inputImage = ImmutableImage.loader().fromBytes(bytes).awt();
+                } catch (Exception e) {
+                    throw new BadRequestException("invalid image file");
+                }
+            }
 
             // 2. null 체크
             if (inputImage == null) {
