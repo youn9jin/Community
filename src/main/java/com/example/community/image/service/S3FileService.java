@@ -17,13 +17,16 @@ public class S3FileService implements FileService {
 
     private final S3Client s3Client;
     private final String bucketName;
+    private final String cloudFrontDomain;
 
     public S3FileService(
             S3Client s3Client,
-            @Value("${cloud.aws.s3.bucket}") String bucketName
+            @Value("${cloud.aws.s3.bucket}") String bucketName,
+            @Value("${cloud.aws.cloudfront.domain}") String cloudFrontDomain
     ) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
+        this.cloudFrontDomain = cloudFrontDomain;
     }
 
     @Override
@@ -42,14 +45,14 @@ public class S3FileService implements FileService {
 
         s3Client.putObject(request, RequestBody.fromFile(file));
 
-        return "/" + key;
+        return cloudFrontDomain + "/" + key;
     }
 
     @Override
     public void deleteFile(String storagePath) {
-        String key = storagePath.startsWith("/")
-                ? storagePath.substring(1)
-                : storagePath;
+        String key = storagePath
+                .replace(cloudFrontDomain + "/", "")
+                .replaceAll("^/+", "");
 
         DeleteObjectRequest request = DeleteObjectRequest.builder()
                 .bucket(bucketName)
