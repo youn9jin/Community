@@ -30,7 +30,8 @@ RUN java -Djarmode=tools -jar build/libs/*.jar extract --layers --destination ex
 FROM eclipse-temurin:26-jre
 WORKDIR /app
 
-RUN groupadd -g 1000 appgroup && useradd -u 1000 -g appgroup -r appuser
+RUN if ! getent group 1000 >/dev/null; then groupadd -g 1000 appgroup; fi && \
+    if ! id -u appuser >/dev/null 2>&1; then useradd -u 1000 -g 1000 -r appuser; fi \
 
 # spring-boot-loader(거의 안 바뀜) → dependencies(가끔 바뀜) → snapshot-dependencies → application(제일 자주 바뀜)
 
