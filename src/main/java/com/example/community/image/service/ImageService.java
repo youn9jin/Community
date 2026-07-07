@@ -8,6 +8,7 @@ import com.example.community.image.ImageRepository;
 import com.example.community.image.ImageType;
 import com.example.community.image.ImageUrlUtils;
 import com.example.community.image.dto.ImageUploadResponseDTO;
+import com.example.community.image.service.StorageType;
 import com.example.community.user.User;
 import com.example.community.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,9 +44,11 @@ public class ImageService {
             String originalFilename = file.getOriginalFilename() != null
                     ? file.getOriginalFilename() : "unknown";
             String baseName = stripExtension(originalFilename);
-            String jpgPath = fileService.uploadFile(processedFiles.getJpgFile(), baseName + ".jpg");
+            String jpgPath = fileService.uploadFile(
+                    processedFiles.getJpgFile(), baseName + ".jpg", StorageType.PROFILE);
             String webpPath = processedFiles.getWebpFile() != null
-                    ? fileService.uploadFile(processedFiles.getWebpFile(), baseName + ".webp")
+                    ? fileService.uploadFile(
+                            processedFiles.getWebpFile(), baseName + ".webp", StorageType.THUMBNAIL)
                     : null;
             Image image = Image.createOrphan(jpgPath, webpPath, uploader);
             image.attachToUser(uploader);
@@ -93,9 +96,12 @@ public class ImageService {
             String baseName = stripExtension(originalFilename);
 
             String jpgPath  = fileService.uploadFile(
-                    processedFiles.getJpgFile(), baseName + ".jpg");
+                    processedFiles.getJpgFile(),
+                    baseName + ".jpg",
+                    type == ImageType.POST ? StorageType.POST : StorageType.PROFILE);
             String webpPath = processedFiles.getWebpFile() != null
-                    ? fileService.uploadFile(processedFiles.getWebpFile(), baseName + ".webp")
+                    ? fileService.uploadFile(
+                            processedFiles.getWebpFile(), baseName + ".webp", StorageType.THUMBNAIL)
                     : null;
 
             // 4. uploadedBy 조회

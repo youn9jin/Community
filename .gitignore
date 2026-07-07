@@ -39,7 +39,7 @@ out/
 
 
 src/main/resources/application.yml
-application-prod.properties
+application-prod.yml
 .env
 /src/main/generated/
 uploads/

@@ -2,6 +2,7 @@ package com.example.community.image.service;
 
 import com.example.community.global.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
+@Profile("!prod")
 public class LocalFileService implements FileService{
 
     private static final String PUBLIC_UPLOAD_PATH = "/uploads/";
@@ -20,7 +22,7 @@ public class LocalFileService implements FileService{
     private String uploadDir;
 
     @Override
-    public String uploadFile(File file, String filename){
+    public String uploadFile(File file, String filename, StorageType storageType){
         try{
             //디렉토리 없으면 생성
             Path directory = Paths.get(uploadDir).toAbsolutePath().normalize();
