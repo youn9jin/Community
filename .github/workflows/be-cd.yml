@@ -69,7 +69,7 @@ jobs:
     # Proceed if build-and-push succeeded, or was intentionally skipped (rollback)
     if: ${{ always() && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v6
 
