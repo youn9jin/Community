@@ -75,7 +75,7 @@ services:
     image: ${ECR_REGISTRY}/reeve-nginx:${IMAGE_TAG}
     restart: unless-stopped
     ports:
-      - "80:8080"
+      - "8080:8080"
     depends_on:
       - springboot
     networks:
