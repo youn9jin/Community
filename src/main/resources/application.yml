@@ -41,10 +41,13 @@ server:
     context-path: /api
 
 management:
+  info:
+    env:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, info
   endpoint:
     health:
       show-details: never
@@ -60,6 +63,10 @@ management:
       enabled: true
     readinessState:
       enabled: true
+
+info:
+  app:
+    version: v2
 
 cloud:
   aws:
