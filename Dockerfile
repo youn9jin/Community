@@ -6,6 +6,7 @@ WORKDIR /build
 
 # 의존성 정의 파일만 먼저 복사 (소스 코드보다 훨씬 덜 바뀜) -> 코드만 수정했을 때 라이브러리 다시 다운 및 빌드하지 않도록
 COPY gradlew settings.gradle build.gradle ./
+RUN chmod +x ./gradlew
 COPY gradle/ gradle/
 
 # 의존성 다운로드
@@ -21,8 +22,7 @@ COPY src/ src/
 RUN ./gradlew bootJar --no-daemon
 
 # 만들어진 jar를 (dependencies / spring-boot-loader / snapshot-dependencies / application) 레이어별 폴더로 추출
-RUN java -Djarmode=tools -jar build/libs/*.jar extract --layers --destination extracted
-
+RUN java -Djarmode=tools -jar build/libs/app.jar extract --layers --destination extracted
 
 # Stage 2: Runtime — 실제로 서비스가 돌아갈 이미지
 

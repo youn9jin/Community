@@ -1,0 +1,38 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+services:
+  nginx:
+    image: ${ECR_REGISTRY}/reeve-nginx:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+    depends_on:
+      - springboot
+    networks:
+      - reeve-be-net
+    mem_limit: 256m
+    logging: *default-logging
+  springboot:
+    image: ${ECR_REGISTRY}/reeve-be:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      RDS_ENDPOINT: ${RDS_ENDPOINT}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      JAVA_OPTS: "-Xmx512m"
+    volumes:
+      - /opt/app/logs:/opt/app/logs
+    networks:
+      - reeve-be-net
+    mem_limit: 896m
+    logging: *default-logging
+networks:
+  reeve-be-net:
+    driver: bridge

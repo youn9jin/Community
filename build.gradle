@@ -19,8 +19,8 @@ java {
 	}
 }
 
-bootJar {
-	archiveFileName = "app.jar"
+tasks.named('bootJar') {
+	archiveFileName = 'app.jar'
 }
 
 jar {
