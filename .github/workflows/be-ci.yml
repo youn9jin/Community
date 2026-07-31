@@ -3,7 +3,7 @@ name: BE CI
 on:
   pull_request:
     branches:
-      - main
+      - dev
 
 permissions:
   contents: read
