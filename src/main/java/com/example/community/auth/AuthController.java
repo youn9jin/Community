@@ -28,7 +28,7 @@ public class AuthController {
                 .httpOnly(true) // HttpOnly 설정
                 .secure(false) //HTTPS에서만 쿠키가 전송되도록 설정 -> 추후 배포시 true로 변경
                 .sameSite("Strict") //외부 사이트 위조 요청에 쿠키 전송 통제
-                .path("/auth") // 쿠키 전송 경로 설정
+                .path("/api/auth") // 쿠키 전송 경로 설정
                 .maxAge(maxAge)
                 .build();
     }
