@@ -26,7 +26,7 @@ public class AuthController {
     private ResponseCookie buildRtCookie(String value, int maxAge) {
         return ResponseCookie.from("refreshToken", value)
                 .httpOnly(true) // HttpOnly 설정
-                .secure(false) //HTTPS에서만 쿠키가 전송되도록 설정 -> 추후 배포시 true로 변경
+                .secure(true) // HTTPS에서만 쿠키 전송 (NLB가 443/TLS 리스너만 사용)
                 .sameSite("Strict") //외부 사이트 위조 요청에 쿠키 전송 통제
                 .path("/api/auth") // 쿠키 전송 경로 설정
                 .maxAge(maxAge)
