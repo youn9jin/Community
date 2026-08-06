@@ -3,14 +3,17 @@ package com.example.community.image;
 import com.example.community.global.ResponseWrapper;
 import com.example.community.image.dto.ImageUploadResponseDTO;
 import com.example.community.image.service.ImageService;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/images")
 public class ImageController {
 
@@ -36,7 +39,7 @@ public class ImageController {
 
     @DeleteMapping("/{imageId}")
     public ResponseEntity<Void> deleteImage(
-            @PathVariable Integer imageId,
+            @PathVariable @Positive Integer imageId,
             @AuthenticationPrincipal Integer loginUserId) {
 
         imageService.deleteImage(imageId, loginUserId);

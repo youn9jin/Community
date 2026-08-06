@@ -6,16 +6,19 @@ import com.example.community.post.dto.PostListResposneDTO;
 import com.example.community.post.dto.PostRequestDTO;
 import com.example.community.post.dto.PostResponseDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
@@ -30,7 +33,7 @@ public class PostController {
 
     // postId에 해당하는 게시글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<ResponseWrapper<PostDetailResponseDTO>> getPost(@PathVariable Integer postId) {
+    public ResponseEntity<ResponseWrapper<PostDetailResponseDTO>> getPost(@PathVariable @Positive Integer postId) {
         PostDetailResponseDTO response = postService.getPost(postId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("load completed", response));
@@ -50,7 +53,7 @@ public class PostController {
     // 인증된 사용자의 본인 게시글 수정
     @PatchMapping("/{postId}")
     public ResponseEntity<ResponseWrapper<PostResponseDTO>> updatePost(
-            @PathVariable Integer postId,
+            @PathVariable @Positive Integer postId,
             @AuthenticationPrincipal Integer userId,
             @Valid @RequestBody PostRequestDTO request) {
 
@@ -62,7 +65,7 @@ public class PostController {
     // 인증된 사용자의 본인 게시글 soft delete
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            @PathVariable Integer postId,
+            @PathVariable @Positive Integer postId,
             @AuthenticationPrincipal Integer userId) {
 
         postService.deletePost(postId, userId);

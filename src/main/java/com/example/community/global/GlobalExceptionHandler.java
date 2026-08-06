@@ -11,6 +11,7 @@ import com.example.community.global.exception.UnauthorizedException;
 import com.example.community.global.exception.UserNotFoundException;
 import com.example.community.global.exception.ImageProcessingException;
 import com.example.community.global.exception.ImageNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import com.example.community.global.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResponseWrapper.error(400, "missing field", "BAD_REQUEST"));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ResponseWrapper<Void>> handleConstraintViolation(ConstraintViolationException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ResponseWrapper.error(400, "잘못된 요청입니다.", "BAD_REQUEST"));
     }
 
     @ExceptionHandler(BadRequestException.class)
