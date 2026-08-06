@@ -2,14 +2,17 @@ package com.example.community.likes;
 
 import com.example.community.global.ResponseWrapper;
 import com.example.community.likes.dto.LikesResponseDTO;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/posts/{postId}/likes")
 public class LikesController {
 
@@ -17,7 +20,7 @@ public class LikesController {
 
     @PostMapping
     public ResponseEntity<ResponseWrapper<LikesResponseDTO>> addLike(
-            @PathVariable Integer postId,
+            @PathVariable @Positive Integer postId,
             @AuthenticationPrincipal Integer loginUserId
     ){
         LikesResponseDTO response = likesService.addLike(postId, loginUserId);
@@ -27,7 +30,7 @@ public class LikesController {
 
     @DeleteMapping
     public ResponseEntity<Void> removeLike(
-            @PathVariable Integer postId,
+            @PathVariable @Positive Integer postId,
             @AuthenticationPrincipal Integer loginUserId
     ){
         likesService.removeLike(postId, loginUserId);

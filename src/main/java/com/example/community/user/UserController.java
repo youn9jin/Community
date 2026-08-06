@@ -3,16 +3,19 @@ package com.example.community.user;
 import com.example.community.global.ResponseWrapper;
 import com.example.community.user.dto.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/users")
 public class UserController {
 
@@ -30,7 +33,7 @@ public class UserController {
     @PreAuthorize("#userId == #loginUserId") // 두 파라미터가 일치할 때만 메서드 실행 허용
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> getUserInfo(
-            @PathVariable Integer userId,
+            @PathVariable @Positive Integer userId,
             @AuthenticationPrincipal Integer loginUserId) {
 
         UserInfoResponseDTO response = userService.getUserInfo(userId);
@@ -42,7 +45,7 @@ public class UserController {
     @PreAuthorize("#userId == #loginUserId")
     @PatchMapping("/{userId}")
     public ResponseEntity<ResponseWrapper<UserInfoResponseDTO>> updateUserInfo(
-            @PathVariable Integer userId,
+            @PathVariable @Positive Integer userId,
             @AuthenticationPrincipal Integer loginUserId,
             @Valid @RequestBody UpdateUserRequestDTO request) {
 
@@ -71,7 +74,7 @@ public class UserController {
     @PreAuthorize("#userId == #loginUserId")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Integer userId,
+            @PathVariable @Positive Integer userId,
             @AuthenticationPrincipal Integer loginUserId) {
 
         userService.deleteUser(userId);
@@ -82,7 +85,7 @@ public class UserController {
     @PreAuthorize("#userId == #loginUserId")
     @PatchMapping("/{userId}/password")
     public ResponseEntity<Void> changePassword(
-            @PathVariable Integer userId,
+            @PathVariable @Positive Integer userId,
             @AuthenticationPrincipal Integer loginUserId,
             @Valid @RequestBody PasswordChangeRequestDTO request){
 
