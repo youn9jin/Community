@@ -3,6 +3,8 @@ package com.example.community.user;
 import com.example.community.global.ResponseWrapper;
 import com.example.community.user.dto.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,7 +58,7 @@ public class UserController {
 
     // 이메일 중복 여부 확인
     @GetMapping(params = "email")
-    public ResponseEntity<ResponseWrapper<?>> checkEmailDuplicate(@RequestParam String email) {
+    public ResponseEntity<ResponseWrapper<?>> checkEmailDuplicate(@RequestParam @Email @NotBlank String email) {
         userService.checkEmailDuplicate(email);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("does not have same email", null));
@@ -64,7 +66,7 @@ public class UserController {
 
     // 닉네임 중복 여부 확인
     @GetMapping(params = "nickname")
-    public ResponseEntity<ResponseWrapper<?>> checkNicknameDuplicate(@RequestParam String nickname) {
+    public ResponseEntity<ResponseWrapper<?>> checkNicknameDuplicate(@RequestParam @NotBlank String nickname) {
         userService.checkNickNameDuplicate(nickname);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseWrapper.success("does not have same nickname", null));
