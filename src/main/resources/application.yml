@@ -5,6 +5,12 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 20s
 
+  data:
+    web:
+      pageable:
+        max-page-size: 50
+        default-page-size: 10
+
   datasource:
     url: jdbc:mysql://localhost:3306/community?allowPublicKeyRetrieval=true&useSSL=false
     username: root
