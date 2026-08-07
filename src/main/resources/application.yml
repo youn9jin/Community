@@ -41,8 +41,9 @@ server:
   shutdown: graceful
   tomcat:
     threads:
-      max: 100
+      max: 50
       min-spare: 10   # 기본값과 동일 — 문서화 목적
+    accept-count: 25
   servlet:
     context-path: /api
 
