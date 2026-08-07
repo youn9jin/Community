@@ -7,6 +7,12 @@ spring:
     url: jdbc:mysql://${RDS_ENDPOINT}:3306/amumaldaejancchi?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: appuser
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 5
+      connection-timeout: 5000
+      max-lifetime: 1800000
+      keepalive-time: 300000
 
   jpa:
     open-in-view: false
