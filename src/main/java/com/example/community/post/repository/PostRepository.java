@@ -8,10 +8,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Integer>, PostRepositoryCustom {
     Optional<Post> findByPostIdAndDeletedAtIsNull(Integer postId);
+
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.user WHERE p.postId IN :postIds ORDER BY p.createdAt DESC")
+    List<Post> findActivePostsWithUserByPostIds(@Param("postIds") List<Integer> postIds);
 
     @Modifying
     @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.postId = :postId")
