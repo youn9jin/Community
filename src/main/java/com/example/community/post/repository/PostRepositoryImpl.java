@@ -2,9 +2,9 @@ package com.example.community.post.repository;
 
 import com.example.community.post.Post;
 import com.example.community.post.QPost;
-import com.example.community.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor  class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final ObjectProvider<PostRepository> postRepositoryProvider;
 
     @Override
     public Page<Post> findActivePosts(Pageable pageable) {
@@ -33,13 +34,8 @@ import java.util.List;
             return new PageImpl<>(List.of(), pageable, 0);
         }
 
-        List<Post> content = queryFactory
-                .selectFrom(QPost.post)
-                // Post.user는 ManyToOne이므로 작성자까지 함께 조회
-                .leftJoin(QPost.post.user, QUser.user).fetchJoin()
-                .where(QPost.post.postId.in(ids)) // 앞에서 페이징 처리한 postId 목록에 해당하는 게시글만 조회
-                .orderBy(QPost.post.createdAt.desc())
-                .fetch();
+        List<Post> content = postRepositoryProvider.getObject()
+                .findActivePostsWithUserByPostIds(ids);
 
         long total = queryFactory
                 .select(QPost.post.count())
