@@ -3,8 +3,9 @@ package com.example.community.post.repository;
 import com.example.community.post.Post;
 import com.example.community.post.QPost;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor  class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final ObjectProvider<PostRepository> postRepositoryProvider;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public Page<Post> findActivePosts(Pageable pageable) {
@@ -34,8 +37,12 @@ import java.util.List;
             return new PageImpl<>(List.of(), pageable, 0);
         }
 
-        List<Post> content = postRepositoryProvider.getObject()
-                .findActivePostsWithUserByPostIds(ids);
+        List<Post> content = entityManager.createQuery(
+                        "SELECT p FROM Post p LEFT JOIN FETCH p.user WHERE p.postId IN :postIds ORDER BY p.createdAt DESC",
+                        Post.class)
+                .unwrap(org.hibernate.query.Query.class)
+                .setParameterList("postIds", ids)
+                .getResultList();
 
         long total = queryFactory
                 .select(QPost.post.count())
