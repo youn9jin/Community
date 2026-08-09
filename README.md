@@ -233,6 +233,65 @@ Community
 - 운영 환경에서는 S3에 `image/post/`, `image/profile/`, `image/thumbnail/` prefix로 업로드합니다.
 - 24시간 이상 게시글/프로필에 연결되지 않은 비활성 이미지는 매일 새벽 3시에 정리합니다.
 
+## 성능 최적화
+
+`/api/posts` 목록 조회 API를 대상으로 k6 부하테스트(`ramping-arrival-rate`)를 반복 진행하며 병목을 찾고 개선했습니다. 아래는 그 중 가장 비중 있게 진행한 HikariCP 커넥션 풀 튜닝 과정과, 그 과정에서 JFR(Java Flight Recorder)로 추가 발견한 병목까지의 요약입니다.
+
+**적용된 런타임 설정** (아래 테스트는 이 값을 기준으로 진행됨)
+
+| 항목 | 값 |
+| --- | --- |
+| GC | G1GC |
+| Heap 상한 | `-XX:MaxRAMPercentage=70` → 컨테이너 메모리 700Mi 기준 약 490Mi |
+| Tomcat `threads.max` / `accept-count` | 50 / 25 |
+| HikariCP `maximum-pool-size` (최종) | 15 |
+
+### 1) HikariCP 커넥션 풀 크기 조정
+
+- HikariCP 공식 사이징 공식(`(core_count × 2) + effective_spindle_count`)을 기준으로 파드당 `maximum-pool-size=5`로 초기 설정
+- 부하테스트 결과, pool=5에서는 커넥션 대기(pending)가 25~26건까지 쌓이며 SLA(p95<1000ms)를 위반
+- Little's Law로 필요 동시 커넥션을 재계산해 `maximum-pool-size=15`로 조정 → pending이 거의 0으로 해소되고 SLA 통과
+  | | pool=5 | pool=15 |
+  | --- | --- | --- |
+  | p95 | 1.74s (SLA 위반) | 880ms (SLA 통과) |
+  | avg | 515.79ms | 292.53ms |
+  | HikariCP pending 피크 | 25~26 | 0에 가까움 |
+
+### 2) JFR 프로파일링으로 찾은 추가 병목
+
+pool 조정 이후에도 BE 파드 CPU가 97%까지 치솟는 현상이 남아, JFR로 CPU 사용처를 직접 분석해 두 가지 원인을 확인했습니다.
+
+- **MySQL PreparedStatement 재파싱** — MySQL Connector/J 기본값(`cachePrepStmts=false`)으로 인해 동일한 쿼리도 요청마다 새로 파싱되고 있었음 → `cachePrepStmts=true`, `prepStmtCacheSize=250`, `useServerPrepStmts=true` 등 캐싱 옵션을 JDBC URL에 적용
+- **Hibernate `CoercionException` 반복 발생** — IN절에 리스트를 `setParameter()`로 그대로 넘기면 Hibernate가 먼저 단일값으로 추정했다가 실패(예외 발생)한 뒤 재시도하는 경로를 타고 있었고, 요청당 평균 1.39회 발생
+  첫 시도(쿼리를 positional → named parameter로만 변경)는 효과가 없었습니다 — CoercionException 발생률이 1.39회→1.38회로 사실상 그대로였고, 응답시간도 오히려 나빠졌습니다. 스택 트레이스를 다시 분석한 결과, 원인은 파라미터 이름 방식이 아니라 **`setParameter()`가 아닌 Hibernate 전용 `setParameterList()`를 써야 하는 것**이었습니다. `EntityManager.unwrap(Query.class).setParameterList()`로 전환한 뒤에야 개선이 나타났고, 같은 패턴이 PostRepository 외에 CommentRepository, ImageRepository에도 남아있어 순차적으로 모두 적용했습니다.
+
+| 단계 | CoercionException 발생률(요청당) |
+| --- | --- |
+| 수정 전 | 1.39회 |
+| PostRepository named parameter만 변경 | 1.38회 (효과 없음) |
+| + CommentRepository 적용 | 0.478회 |
+| + ImageRepository 적용 | 0회 (168,454건 요청 기준) |
+
+MySQL 캐싱 옵션과 Hibernate 쿼리 수정을 함께 반영한 뒤 200 RPS 부하테스트 결과:
+
+| | 개선 전 | 개선 후 |
+| --- | --- | --- |
+| p95 | 3.57s (SLA 위반) | 421ms (SLA 통과) |
+| avg | 1.03s | 92ms |
+| CPU 피크 | 99% | 76.9% |
+| Tomcat busy 최대(상한 50) | 50 (포화) | 12 |
+
+### 3) 부가 발견 — JIT 컴파일러 warm-up 비용
+
+350 RPS까지 부하를 올리는 과정에서, 막 재시작한 파드는 JIT(C2) 컴파일러가 아직 핫 경로를 학습하지 못해 컴파일 자체가 CPU의 상당 부분(전체 CPU의 약 7.7%)을 차지한다는 것을 JFR로 확인했습니다. 이후 부하테스트 전에 낮은 RPS로 2~3분간 예열 트래픽을 흘려서 이 노이즈를 줄이는 절차를 추가했습니다.
+
+### 현재 확인된 성능 경계
+
+- **200 RPS**: SLA(p95<1000ms) 안정적으로 통과 — p95 421ms, CPU 76.9%
+- **350 RPS**: SLA 위반(p95 2.13s) — CPU(93.7%), Tomcat busy(50=상한), HikariCP pending(30+)이 동시에 포화되는 것으로 확인했습니다. 코드 버그가 아니라 현재 파드 스펙(CPU 500m, Tomcat 50 threads, HikariCP pool 15)에서 나타나는 물리적 한계로 판단하고 있습니다.
+- 정확한 임계 RPS(200~350 사이 어딘가로 추정)는 아직 특정하지 못했습니다.
+
+
 ## 실행 방법
 
 ```bash
