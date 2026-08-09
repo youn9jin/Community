@@ -256,5 +256,3 @@ Community
 - GitHub Actions가 이미지를 빌드하고 AWS ECR에 push합니다.
 - GitOps CD workflow는 GitOps 저장소의 `apps/reeve-be/values.yaml` 이미지 태그를 갱신합니다.
 - 운영 배포 스크립트는 AWS SSM Parameter Store에서 비밀값을 읽어 컨테이너 환경 변수로 주입하고, 운영 profile은 AWS RDS와 S3 설정을 사용합니다.
-
-## 프로젝트 후기
